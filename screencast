@@ -151,9 +151,9 @@ sleep 1
 
 # Record lossless screencast with or without audio
 if [[ $audioQ == [yY]* ]]; then
-	ffmpeg -f alsa -ac $AC -i $incoming -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -acodec pcm_s16le -vcodec libx264 -x264opts qp=0 -preset ultrafast -threads 0 lossless.mkv
+	ffmpeg -f alsa -ac $AC -i $incoming -f x11grab -ar $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
 else
-	ffmpeg -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -vcodec libx264 -x264opts qp=0 -preset ultrafast -threads 0 lossless.mkv
+	ffmpeg -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
 fi
 
 # Ask if you want to encode the video now or wait until later
@@ -180,18 +180,18 @@ read pass
 # Encode video
 if [[ $pass == 2 ]]; then
 	if [[ $audioQ == [yY]* ]]; then
-		ffmpeg -i lossless.mkv -pass 1 -vcodec libx264 -b "$video_bitrate"k -threads 0 -f rawvideo -preset $preset -an -y /dev/null
-		ffmpeg -i lossless.mkv -pass 2 -acodec libvorbis -ab "$audio_bitrate"k -ac $AC -vcodec libx264 -preset $preset -b "$video_bitrate"k -threads 0 $file.$ext
+		ffmpeg -i lossless.mkv -pass 1 -c:v libx264 -b:v "$video_bitrate"k -threads 0 -f rawvideo -preset $preset -an -y /dev/null
+		ffmpeg -i lossless.mkv -pass 2 -c:a libvorbis -b:a "$audio_bitrate"k -ac $AC -c:v libx264 -preset $preset -b:v "$video_bitrate"k -threads 0 $file.$ext
 	else
-		ffmpeg -i lossless.mkv -pass 1 -vcodec libx264 -b "$video_bitrate"k -threads 0 -f rawvideo -preset $preset -an -y /dev/null
-		ffmpeg -i lossless.mkv -pass 2 -an -vcodec libx264 -preset $preset -b "$video_bitrate"k -threads 0 $file.$ext
+		ffmpeg -i lossless.mkv -pass 1 -c:v libx264 -b:v "$video_bitrate"k -threads 0 -f rawvideo -preset $preset -an -y /dev/null
+		ffmpeg -i lossless.mkv -pass 2 -an -c:v libx264 -preset $preset -b:v "$video_bitrate"k -threads 0 $file.$ext
 	fi
 
 else
 	if [[ $audioQ == [yY]* ]]; then
-		ffmpeg -i lossless.mkv -acodec libvorbis -ab "$audio_bitrate"k -ac $AC -vcodec libx264 -preset $preset -crf $crf -threads 0 $file.$ext
+		ffmpeg -i lossless.mkv -c:a libvorbis -b:a "$audio_bitrate"k -ac $AC -c:v libx264 -preset $preset -crf $crf -threads 0 $file.$ext
 	else
-		ffmpeg -i lossless.mkv -an -vcodec libx264 -preset $preset -crf $crf -threads 0 $file.$ext
+		ffmpeg -i lossless.mkv -an -c:v libx264 -preset $preset -crf $crf -threads 0 $file.$ext
 	fi
 fi
 
