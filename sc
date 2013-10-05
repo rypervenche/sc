@@ -2,7 +2,7 @@
 
 clear
 cat << EOF
-screencast.sh  Copyright (C) 2011  Perry Thompson
+sc  Copyright (C) 2011  Perry Thompson
 This program comes with ABSOLUTELY NO WARRANTY; for details visit <http://www.gnu.org/licenses/gpl.html#section15>.
 This is free software, and you are welcome to redistribute it under certain conditions; visit <http://www.gnu.org/licenses/gpl.html#terms>.
 EOF
