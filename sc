@@ -24,15 +24,15 @@ dependencies=( x264 ffmpeg libvorbis )
 
 # Check to see if all required packages are installed
 command_exists () {
-	type -P "$1" &> /dev/null ;
+    type -P "$1" &> /dev/null ;
 }
 
 for i in "${dependencies[@]}"
 do
-	command_exists $i
-	if [[ $? != 0 ]]; then
-		echo "You need to install ${dependencies[i]}. Closing program now..."
-	fi
+    command_exists $i
+    if [[ $? != 0 ]]; then
+        echo "You need to install ${dependencies[i]}. Closing program now..."
+    fi
 done
 
 clear
@@ -47,58 +47,58 @@ read audioQ
 
 # Choose audio input
 if [[ $audioQ == [yY]* ]]; then
-	clear
-	if [[ $pulseaudio == "true" ]]; then
-		# Check to see if pavucontrol is installed
-		if ! type -P pavucontrol > /dev/null; then
-			echo "Please install pavucontrol"
-			exit 1
-		fi
-		incoming="pulse"
-		clear
-		echo "Where would you like the audio to come from?"
-		echo ""
-		echo "1) Internal audio"
-		echo "2) Built-in microphone"
-		echo "3) Headset microphone"
-		echo ""
-		echo "Enter single digit (Press space when finished)"
-		read audioA
-		clear
-		echo "Pavucontrol will now open."
-		echo ""
-		if [[ $audioA == 1 ]]; then
-			echo 'Go to the Recording tab and choose "Monitor of Internal Audio".'
-			AC="2"
-		elif [[ $audioA == 2 ]]; then
-			echo 'Go to the Recording tab and choose "Internal Audio".'
-			AC="1"
-		elif [[ $audioA == 3 ]]; then
-			echo 'Go to the Recording tab and choose your headset'
-			AC="2"
-		fi
-		echo ""
-		echo 'Close pavucontrol then press "q" in the terminal.'
-		echo ""
-		echo "Press any key to continue."
-		read -n 1 -p ""
-		clear
-		pavucontrol &
-		ffmpeg -f alsa -ac $AC -i $incoming test_audio.ogg
-		rm test_audio.ogg
-	elif [[ $pulseaudio == "false" ]]; then
-		clear
-		cat /proc/asound/cards
-		echo ""
-		echo "Choose audio device to record from (ex. for hw:1,0 enter \"1\")"
-		read audiodevice
-		incoming="hw:$audiodevice"
-		clear
-		echo "Choose number of audio channels (usually mono for microphones)"
-		read AC
-	else
-		exit 1
-	fi
+    clear
+    if [[ $pulseaudio == "true" ]]; then
+        # Check to see if pavucontrol is installed
+        if ! type -P pavucontrol > /dev/null; then
+            echo "Please install pavucontrol"
+            exit 1
+        fi
+        incoming="pulse"
+        clear
+        echo "Where would you like the audio to come from?"
+        echo ""
+        echo "1) Internal audio"
+        echo "2) Built-in microphone"
+        echo "3) Headset microphone"
+        echo ""
+        echo "Enter single digit (Press space when finished)"
+        read audioA
+        clear
+        echo "Pavucontrol will now open."
+        echo ""
+        if [[ $audioA == 1 ]]; then
+            echo 'Go to the Recording tab and choose "Monitor of Internal Audio".'
+            AC="2"
+        elif [[ $audioA == 2 ]]; then
+            echo 'Go to the Recording tab and choose "Internal Audio".'
+            AC="1"
+        elif [[ $audioA == 3 ]]; then
+            echo 'Go to the Recording tab and choose your headset'
+            AC="2"
+        fi
+        echo ""
+        echo 'Close pavucontrol then press "q" in the terminal.'
+        echo ""
+        echo "Press any key to continue."
+        read -n 1 -p ""
+        clear
+        pavucontrol &
+        ffmpeg -f alsa -ac $AC -i $incoming test_audio.ogg
+        rm test_audio.ogg
+    elif [[ $pulseaudio == "false" ]]; then
+        clear
+        cat /proc/asound/cards
+        echo ""
+        echo "Choose audio device to record from (ex. for hw:1,0 enter \"1\")"
+        read audiodevice
+        incoming="hw:$audiodevice"
+        clear
+        echo "Choose number of audio channels (usually mono for microphones)"
+        read AC
+    else
+        exit 1
+    fi
 fi
 
 # Get window information
@@ -112,14 +112,14 @@ WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" 
 first=$(echo "$WIN_GEO" | cut -d \x -f1)
 second=$(echo "$WIN_GEO" | cut -d \x -f2)
 if (($first%2!=0)) || (($second%2!=0)); then
-	if (($first%2!=0)); then
-		first=$(($first-1))
-	fi
-	if (($second%2!=0)); then
-		second=$(($second-1))
-	fi
-	WIN_GEO="$first"x"$second"
-fi	
+    if (($first%2!=0)); then
+        first=$(($first-1))
+    fi
+    if (($second%2!=0)); then
+        second=$(($second-1))
+    fi
+    WIN_GEO="$first"x"$second"
+fi    
 
 
 # Name file
@@ -151,9 +151,9 @@ sleep 1
 
 # Record lossless screencast with or without audio
 if [[ $audioQ == [yY]* ]]; then
-	ffmpeg -f alsa -ac $AC -i $incoming -f x11grab -ar $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
+    ffmpeg -f alsa -ac $AC -i $incoming -f x11grab -ar $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
 else
-	ffmpeg -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
+    ffmpeg -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
 fi
 
 # Ask if you want to encode the video now or wait until later
@@ -162,9 +162,9 @@ echo "Would you like to encode the video now? Y/n"
 read encode
 
 if [[ $encode == [nN]* ]]; then
-	mv /tmp/screencast/lossless.mkv $output_destination/${file}_lossless.mkv
-	rm -rf /tmp/screencast
-	exit 0
+    mv /tmp/screencast/lossless.mkv $output_destination/${file}_lossless.mkv
+    rm -rf /tmp/screencast
+    exit 0
 fi
 
 # Choose encoding type
@@ -179,20 +179,20 @@ read pass
 
 # Encode video
 if [[ $pass == 2 ]]; then
-	if [[ $audioQ == [yY]* ]]; then
-		ffmpeg -i lossless.mkv -pass 1 -c:v libx264 -b:v "$video_bitrate"k -threads 0 -f rawvideo -preset $preset -an -y /dev/null
-		ffmpeg -i lossless.mkv -pass 2 -c:a libvorbis -b:a "$audio_bitrate"k -ac $AC -c:v libx264 -preset $preset -b:v "$video_bitrate"k -threads 0 $file.$ext
-	else
-		ffmpeg -i lossless.mkv -pass 1 -c:v libx264 -b:v "$video_bitrate"k -threads 0 -f rawvideo -preset $preset -an -y /dev/null
-		ffmpeg -i lossless.mkv -pass 2 -an -c:v libx264 -preset $preset -b:v "$video_bitrate"k -threads 0 $file.$ext
-	fi
+    if [[ $audioQ == [yY]* ]]; then
+        ffmpeg -i lossless.mkv -pass 1 -c:v libx264 -b:v "$video_bitrate"k -threads 0 -f rawvideo -preset $preset -an -y /dev/null
+        ffmpeg -i lossless.mkv -pass 2 -c:a libvorbis -b:a "$audio_bitrate"k -ac $AC -c:v libx264 -preset $preset -b:v "$video_bitrate"k -threads 0 $file.$ext
+    else
+        ffmpeg -i lossless.mkv -pass 1 -c:v libx264 -b:v "$video_bitrate"k -threads 0 -f rawvideo -preset $preset -an -y /dev/null
+        ffmpeg -i lossless.mkv -pass 2 -an -c:v libx264 -preset $preset -b:v "$video_bitrate"k -threads 0 $file.$ext
+    fi
 
 else
-	if [[ $audioQ == [yY]* ]]; then
-		ffmpeg -i lossless.mkv -c:a libvorbis -b:a "$audio_bitrate"k -ac $AC -c:v libx264 -preset $preset -crf $crf -threads 0 $file.$ext
-	else
-		ffmpeg -i lossless.mkv -an -c:v libx264 -preset $preset -crf $crf -threads 0 $file.$ext
-	fi
+    if [[ $audioQ == [yY]* ]]; then
+        ffmpeg -i lossless.mkv -c:a libvorbis -b:a "$audio_bitrate"k -ac $AC -c:v libx264 -preset $preset -crf $crf -threads 0 $file.$ext
+    else
+        ffmpeg -i lossless.mkv -an -c:v libx264 -preset $preset -crf $crf -threads 0 $file.$ext
+    fi
 fi
 
 # Remove unnecessary files and folders and exit
@@ -201,9 +201,9 @@ echo "Would you like to keep the raw video? y/N"
 read raw
 
 if [[ $raw == [yY]* ]]; then
-	mv /tmp/screencast/lossless.mkv $HOME/Desktop/
-	rm -rf /tmp/screencast
+    mv /tmp/screencast/lossless.mkv $HOME/Desktop/
+    rm -rf /tmp/screencast
 else
-	rm -rf /tmp/screencast
+    rm -rf /tmp/screencast
 fi
 exit 0
