@@ -12,11 +12,12 @@ clear
 
 # Customize your variables here
 
-pulseaudio="false" # Change to "true" if you use Pulse
+pulseaudio="true" # Change to "true" if you use Pulse
 ext="mkv"
 frame_rate="10"
 video_bitrate="512" # in kilobytes, for two pass
 audio_bitrate="160" # in kilobytes
+audio_freq="44100"
 crf="18" # For one pass
 preset="medium" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
 output_destination="$HOME/Desktop"
@@ -151,7 +152,7 @@ sleep 1
 
 # Record lossless screencast with or without audio
 if [[ $audioQ == [yY]* ]]; then
-    ffmpeg -f alsa -ac $AC -i $incoming -f x11grab -ar $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
+    ffmpeg -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
 else
     ffmpeg -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
 fi
