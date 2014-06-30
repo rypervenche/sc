@@ -73,7 +73,7 @@ if [[ $audioQ == [yY]* ]]; then
             AC="2"
         elif [[ $audioA == 2 ]]; then
             echo 'Go to the Recording tab and choose "Internal Audio".'
-            AC="1"
+            AC="2"
         elif [[ $audioA == 3 ]]; then
             echo 'Go to the Recording tab and choose your headset'
             AC="2"
