@@ -13,8 +13,7 @@ clear
 # Customize your variables here
 
 pulseaudio="true" # Change to "true" if you use Pulse
-ext="mkv"
-frame_rate="10"
+frame_rate="30"
 video_bitrate="512k" # in kilobytes, for two pass
 audio_bitrate="160k" # in kilobytes
 audio_freq="44100"
@@ -188,29 +187,29 @@ if [[ "$encoding" == [Ww]* ]]
 then
     ext="webm"
     audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-    video_options="-c:v libvpx"
+    video_options="-c:v libvpx -threads 7"
 else
     ext="mkv"
     audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-    video_options="-c:v libx264 -preset $preset"
+    video_options="-c:v libx264 -preset $preset -threads 0"
 fi
 
 # Encode video
 if [[ $pass == 2 ]]; then
     video_options="$video_options -b:v $video_bitrate"
     if [[ $audioQ == [yY]* ]]; then
-        ffmpeg -i lossless.mkv -pass 1 $video_options -threads 0 -f rawvideo -an -y /dev/null
-        ffmpeg -i lossless.mkv -pass 2 $audio_options $video_options -threads 0 $file.$ext
+        ffmpeg -i lossless.mkv -pass 1 $video_options -f rawvideo -an -y /dev/null
+        ffmpeg -i lossless.mkv -pass 2 $audio_options $video_options $file.$ext
     else
-        ffmpeg -i lossless.mkv -pass 1 $video_options -threads 0 -f rawvideo -an -y /dev/null
-        ffmpeg -i lossless.mkv -pass 2 -an $video_options -threads 0 $file.$ext
+        ffmpeg -i lossless.mkv -pass 1 $video_options -f rawvideo -an -y /dev/null
+        ffmpeg -i lossless.mkv -pass 2 -an $video_options $file.$ext
     fi
 
 else
     if [[ $audioQ == [yY]* ]]; then
-        ffmpeg -i lossless.mkv $audio_options $video_options -crf $crf -threads 0 $file.$ext
+        ffmpeg -i lossless.mkv $audio_options $video_options -crf $crf $file.$ext
     else
-        ffmpeg -i lossless.mkv -an $video_options -crf $crf -threads 0 $file.$ext
+        ffmpeg -i lossless.mkv -an $video_options -crf $crf $file.$ext
     fi
 fi
 
