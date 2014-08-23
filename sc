@@ -15,13 +15,13 @@ clear
 pulseaudio="true" # Change to "true" if you use Pulse
 ext="mkv"
 frame_rate="10"
-video_bitrate="512" # in kilobytes, for two pass
-audio_bitrate="160" # in kilobytes
+video_bitrate="512k" # in kilobytes, for two pass
+audio_bitrate="160k" # in kilobytes
 audio_freq="44100"
 crf="18" # For one pass
 preset="medium" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
 output_destination="$HOME/Desktop"
-dependencies=( x264 ffmpeg libvorbis )
+dependencies=( x264 ffmpeg libvorbis libvpx )
 
 # Check to see if all required packages are installed
 command_exists () {
@@ -41,6 +41,12 @@ clear
 # Move working directory to /tmp
 mkdir -p /tmp/screencast
 cd /tmp/screencast
+
+
+# Webm or x264 encoding?
+echo "Would you like webm or x264 encoding? [x264]"
+read encoding
+
 
 # Ask if audio is necessary
 echo "Would you like audio? y/N"
@@ -178,21 +184,33 @@ echo ""
 echo "Enter single digit (Default: 1)"
 read pass
 
+if [[ "$encoding" == [Ww]* ]]
+then
+    ext="webm"
+    audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
+    video_options="-c:v libvpx"
+else
+    ext="mkv"
+    audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
+    video_options="-c:v libx264 -preset $preset"
+fi
+
 # Encode video
 if [[ $pass == 2 ]]; then
+    video_options="$video_options -b:v $video_bitrate"
     if [[ $audioQ == [yY]* ]]; then
-        ffmpeg -i lossless.mkv -pass 1 -c:v libx264 -b:v "$video_bitrate"k -threads 0 -f rawvideo -preset $preset -an -y /dev/null
-        ffmpeg -i lossless.mkv -pass 2 -c:a libvorbis -b:a "$audio_bitrate"k -ac $AC -c:v libx264 -preset $preset -b:v "$video_bitrate"k -threads 0 $file.$ext
+        ffmpeg -i lossless.mkv -pass 1 $video_options -threads 0 -f rawvideo -an -y /dev/null
+        ffmpeg -i lossless.mkv -pass 2 $audio_options $video_options -threads 0 $file.$ext
     else
-        ffmpeg -i lossless.mkv -pass 1 -c:v libx264 -b:v "$video_bitrate"k -threads 0 -f rawvideo -preset $preset -an -y /dev/null
-        ffmpeg -i lossless.mkv -pass 2 -an -c:v libx264 -preset $preset -b:v "$video_bitrate"k -threads 0 $file.$ext
+        ffmpeg -i lossless.mkv -pass 1 $video_options -threads 0 -f rawvideo -an -y /dev/null
+        ffmpeg -i lossless.mkv -pass 2 -an $video_options -threads 0 $file.$ext
     fi
 
 else
     if [[ $audioQ == [yY]* ]]; then
-        ffmpeg -i lossless.mkv -c:a libvorbis -b:a "$audio_bitrate"k -ac $AC -c:v libx264 -preset $preset -crf $crf -threads 0 $file.$ext
+        ffmpeg -i lossless.mkv $audio_options $video_options -crf $crf -threads 0 $file.$ext
     else
-        ffmpeg -i lossless.mkv -an -c:v libx264 -preset $preset -crf $crf -threads 0 $file.$ext
+        ffmpeg -i lossless.mkv -an $video_options -crf $crf -threads 0 $file.$ext
     fi
 fi
 
