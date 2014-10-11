@@ -14,11 +14,12 @@ clear
 
 pulseaudio="true" # Change to "true" if you use Pulse
 frame_rate="30"
-video_bitrate="512k" # for two pass
-webm_video_bitrate="5000k" # For webm
+video_bitrate="512k" # For two pass
+webm_video_bitrate="8000k" # For webm
 audio_bitrate="160k" # in kilobytes
 audio_freq="44100"
 crf="18" # For one pass
+webm_crf="10" # For one pass
 preset="medium" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
 output_destination="$HOME/Desktop"
 dependencies=( x264 ffmpeg libvorbis libvpx )
@@ -188,7 +189,7 @@ if [[ "$encoding" == [Ww]* ]]
 then
     ext="webm"
     audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-    video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
+    video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate -crf $webm_crf"
 else
     ext="mkv"
     audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
