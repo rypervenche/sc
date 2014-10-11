@@ -14,7 +14,8 @@ clear
 
 pulseaudio="true" # Change to "true" if you use Pulse
 frame_rate="30"
-video_bitrate="512k" # in kilobytes, for two pass
+video_bitrate="512k" # for two pass
+webm_video_bitrate="5000k" # For webm
 audio_bitrate="160k" # in kilobytes
 audio_freq="44100"
 crf="18" # For one pass
@@ -187,7 +188,7 @@ if [[ "$encoding" == [Ww]* ]]
 then
     ext="webm"
     audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-    video_options="-c:v libvpx -threads 7"
+    video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
 else
     ext="mkv"
     audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
