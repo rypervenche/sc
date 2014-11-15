@@ -1,15 +1,5 @@
 #!/bin/bash
 
-clear
-cat << EOF
-sc Copyright (C) 2011-2014 Rypervenche
-This program comes with ABSOLUTELY NO WARRANTY; for details visit <http://www.gnu.org/licenses/gpl.html#section15>.
-This is free software, and you are welcome to redistribute it under certain conditions; visit <http://www.gnu.org/licenses/gpl.html#terms>.
-EOF
-echo ""
-read -n 1 -p "Press any key to continue"
-clear
-
 # Customize your variables here
 
 pulseaudio="true" # Change to "true" if you use Pulse
@@ -24,31 +14,45 @@ preset="medium" # ultrafast, superfast, veryfast, faster, fast, medium, slow, sl
 output_destination="$HOME/Desktop"
 dependencies=( x264 ffmpeg libvorbis libvpx )
 
-# Check to see if all required packages are installed
-command_exists () {
-    type -P "$1" &> /dev/null ;
+
+show_license() {
+clear
+cat << EOF
+sc Copyright (C) 2011-2014 Rypervenche
+This program comes with ABSOLUTELY NO WARRANTY; for details visit <http://www.gnu.org/licenses/gpl.html#section15>.
+This is free software, and you are welcome to redistribute it under certain conditions; visit <http://www.gnu.org/licenses/gpl.html#terms>.
+EOF
+echo ""
+read -n 1 -p "Press any key to continue"
+clear
 }
 
+# Check to see if all required packages are installed
+check_for_dependencies() {
 for i in "${dependencies[@]}"
 do
-    command_exists $i
+    type -P "$i" &> /dev/null
+
     if [[ $? != 0 ]]; then
         echo "You need to install ${dependencies[i]}. Closing program now..."
     fi
 done
-
 clear
+}
 
+move_pwd() {
 # Move working directory to /tmp
 mkdir -p /tmp/screencast
 cd /tmp/screencast
+}
 
-
+set_encoding_type() {
 # Webm or x264 encoding?
 echo "Would you like webm or x264 encoding? [x264]"
 read encoding
+}
 
-
+set_audio_variables() {
 # Ask if audio is necessary
 echo "Would you like audio? y/N"
 read audioQ
@@ -108,7 +112,9 @@ if [[ $audioQ == [yY]* ]]; then
         exit 1
     fi
 fi
+}
 
+set_window_variables() {
 # Get window information
 clear
 read -n 1 -p "Press any key then click on the window you wish to record"
@@ -127,14 +133,17 @@ if (($first%2!=0)) || (($second%2!=0)); then
         second=$(($second-1))
     fi
     WIN_GEO="$first"x"$second"
-fi    
+fi
+}
 
-
+set_extension_variable() {
 # Name file
 clear
 echo "Name file: (without extension)"
 read file
+}
 
+countdown() {
 # Require key press to continue
 clear
 read -n 1 -p "Press any key to record"
@@ -155,15 +164,18 @@ sleep 1
 clear
 echo "Recording will begin in 1 second"
 sleep 1
-#clear
+}
 
+record_lossless() {
 # Record lossless screencast with or without audio
 if [[ $audioQ == [yY]* ]]; then
     ffmpeg -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
 else
     ffmpeg -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
 fi
+}
 
+ask_to_encode() {
 # Ask if you want to encode the video now or wait until later
 #clear
 echo "Would you like to encode the video now? Y/n"
@@ -174,7 +186,9 @@ if [[ $encode == [nN]* ]]; then
     rm -rf /tmp/screencast
     exit 0
 fi
+}
 
+set_encoding_variables() {
 # Choose encoding type
 clear
 echo "Choose encoding type:"
@@ -195,7 +209,9 @@ else
     audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
     video_options="-c:v libx264 -preset $preset -threads 0"
 fi
+}
 
+encode_video() {
 # Encode video
 if [[ $pass == 2 ]]; then
     video_options="$video_options -b:v $video_bitrate"
@@ -214,7 +230,9 @@ else
         ffmpeg -i lossless.mkv -an $video_options -crf $crf $file.$ext
     fi
 fi
+}
 
+cleanup() {
 # Remove unnecessary files and folders and exit
 mv $file.$ext $output_destination/
 echo "Would you like to keep the raw video? y/N"
@@ -226,4 +244,32 @@ if [[ $raw == [yY]* ]]; then
 else
     rm -rf /tmp/screencast
 fi
+}
+
+show_license
+
+check_for_dependencies
+
+move_pwd
+
+set_encoding_type
+
+set_audio_variables
+
+set_window_variables
+
+set_extension_variable
+
+countdown
+
+record_lossless
+
+ask_to_encode
+
+set_encoding_variables
+
+encode_video
+
+cleanup
+
 exit 0
