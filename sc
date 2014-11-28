@@ -4,7 +4,7 @@
 pulseaudio="true" # Change to "true" if you use Pulse
 frame_rate="30"
 video_bitrate="512k" # For two pass
-webm_video_bitrate="8000k" # For webm
+webm_video_bitrate="8k" # For webm
 audio_bitrate="160k" # in kilobytes
 audio_freq="44100"
 crf="18" # For one pass
@@ -169,9 +169,9 @@ countdown() {
 record_lossless() {
     # Record lossless screencast with or without audio
     if [[ $audioQ == [yY]* ]]; then
-        ffmpeg -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
+        ffmpeg -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -r $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
     else
-        ffmpeg -f x11grab -r $frame_rate -s $WIN_GEO -i :0.0+$WIN_POS -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
+        ffmpeg -f x11grab -r $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
     fi
 }
 
