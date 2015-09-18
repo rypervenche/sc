@@ -239,6 +239,8 @@ cleanup() {
     echo "Would you like to keep the raw video? y/N"
     read raw
     
+    cd $OLDPWD
+    
     if [[ $raw == [yY]* ]]; then
         mv /tmp/screencast/lossless.mkv $HOME/Desktop/
         rm -rf /tmp/screencast
