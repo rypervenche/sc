@@ -202,11 +202,13 @@ set_encoding_variables() {
     then
         ext="webm"
         audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-        video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate -crf $webm_crf"
+        video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
+	crf_options="-crf $webm_crf"
     else
         ext="mkv"
         audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
         video_options="-c:v libx264 -preset $preset -threads 0"
+	crf_options="-crf $crf"
     fi
 }
 
@@ -224,9 +226,9 @@ encode_video() {
     
     else
         if [[ $audioQ == [yY]* ]]; then
-            ffmpeg -i lossless.mkv $audio_options $video_options -crf $crf $file.$ext
+            ffmpeg -i lossless.mkv $audio_options $video_options $crf_options $file.$ext
         else
-            ffmpeg -i lossless.mkv -an $video_options -crf $crf $file.$ext
+            ffmpeg -i lossless.mkv -an $video_options $crf_options $file.$ext
         fi
     fi
 }
