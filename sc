@@ -50,6 +50,19 @@ set_encoding_type() {
     # Webm or x264 encoding?
     echo "Would you like webm or x264 encoding? [x264]"
     read encoding
+
+    if [[ "$encoding" == [Ww]* ]]
+    then
+        ext="webm"
+        audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
+        video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
+	crf_options="-crf $webm_crf"
+    else
+        ext="mkv"
+        audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
+        video_options="-c:v libx264 -preset $preset -threads 0"
+	crf_options="-crf $crf"
+    fi
 }
 
 set_audio_variables() {
@@ -197,19 +210,6 @@ set_encoding_variables() {
     echo ""
     echo "Enter single digit (Default: 1)"
     read pass
-    
-    if [[ "$encoding" == [Ww]* ]]
-    then
-        ext="webm"
-        audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-        video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
-	crf_options="-crf $webm_crf"
-    else
-        ext="mkv"
-        audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-        video_options="-c:v libx264 -preset $preset -threads 0"
-	crf_options="-crf $crf"
-    fi
 }
 
 encode_video() {
