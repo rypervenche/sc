@@ -242,7 +242,7 @@ cleanup() {
     cd $OLDPWD
     
     if [[ $raw == [yY]* ]]; then
-        mv /tmp/screencast/lossless.mkv $HOME/Desktop/
+        mv /tmp/screencast/lossless.mkv $output_destination/
         rm -rf /tmp/screencast
     else
         rm -rf /tmp/screencast
