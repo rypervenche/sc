@@ -10,7 +10,7 @@ audio_freq="44100"
 crf="18" # For one pass
 webm_crf="18" # For one pass
 preset="medium" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
-output_destination="$HOME/Video/screencasts"
+output_destination="$HOME/Videos/sc"
 dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
 gif_palette="palette.png"
 #===============================================================================
