@@ -12,6 +12,7 @@ webm_crf="18" # For one pass
 preset="medium" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
 output_destination="$HOME/Videos/sc"
 dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
+temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 gif_palette="palette.png"
 #===============================================================================
 
@@ -43,8 +44,7 @@ check_for_dependencies() {
 
 move_pwd() {
     # Move working directory to /tmp
-    mkdir -p /tmp/screencast
-    cd /tmp/screencast
+    cd $temp_dir
 }
 
 set_encoding_type() {
@@ -203,8 +203,8 @@ ask_to_encode() {
     read encode
 
     if [[ $encode == [nN]* ]]; then
-        mv /tmp/screencast/lossless.mkv $output_destination/${file}_lossless.mkv
-        rm -rf /tmp/screencast
+        mv $temp_dir/lossless.mkv $output_destination/${file}_lossless.mkv
+        rm -rf $temp_dir
         exit 0
     fi
 }
@@ -278,10 +278,10 @@ cleanup() {
     cd $OLDPWD
 
     if [[ $raw == [yY]* ]]; then
-        mv /tmp/screencast/lossless.mkv $output_destination/${file}_lossless.${ext}
-        rm -rf /tmp/screencast
+        mv $temp_dir/lossless.mkv $output_destination/${file}_lossless.${ext}
+        rm -rf $temp_dir
     else
-        rm -rf /tmp/screencast
+        rm -rf $temp_dir
     fi
 
     exit 0
