@@ -51,12 +51,23 @@ set_encoding_type() {
     # Webm or x264 encoding?
     echo "Would you like x264, mp4, webm, or gif encoding? [x264]"
     read encoding
-
+    if [[ "$encoding" == [Gg]* ]]; then
+        echo "Which size for the gif, sir? [320]"
+        read scale
+        if [ -z "$scale" ]; then
+           scale=320
+        fi
+    fi
 }
 
 set_audio_variables() {
-    # Ask if audio is necessary
-    echo "Would you like audio? y/N"
+    # Ask if audio is necessary (skip if gif)
+
+    if [[ "$encoding" == [Gg]* ]]; then
+        return
+    fi
+    
+    echo "Would you like audio? y/N [N]"
     read audioQ
     
     # Choose audio input
@@ -200,6 +211,12 @@ ask_to_encode() {
 
 set_encoding_variables() {
     # Choose encoding type
+    if [[ "$encoding" == [Gg]* ]]; then
+        video_options="fps=$frame_rate,scale=$scale:-1:flags=lanczos"
+        ext="gif"
+        crf_options=""
+        return
+    fi
     clear
     echo "Choose encoding type:"
     echo ""
@@ -215,6 +232,11 @@ set_encoding_variables() {
         audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
         video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
         crf_options="-crf $webm_crf"
+    elif [[ "$encoding" == [Mm]* ]]; then
+        ext="mp4"
+        audio_options="-c:a libfaac -b:a $audio_bitrate -ac $AC"
+        video_options="-c:v libx264 -preset $preset -threads 0"
+        crf_options="-crf $crf"
     else
         ext="mkv"
         audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
@@ -225,7 +247,10 @@ set_encoding_variables() {
 
 encode_video() {
     # Encode video
-    if [[ $pass == 2 ]]; then
+    if [[ "$encoding" == [Gg]* ]]; then
+        ffmpeg -v warning -i lossless.mkv -vf "$video_options,palettegen" -y $gif_palette
+        ffmpeg -v warning -i lossless.mkv -i $gif_palette -lavfi "$video_options [x]; [x][1:v] paletteuse" -y $file.$ext
+    elif [[ $pass == 2 ]]; then
         video_options="$video_options -b:v $video_bitrate"
         if [[ $audioQ == [yY]* ]]; then
             ffmpeg -i lossless.mkv -pass 1 $video_options -f rawvideo -an -y /dev/null
@@ -253,7 +278,7 @@ cleanup() {
     cd $OLDPWD
     
     if [[ $raw == [yY]* ]]; then
-        mv /tmp/screencast/lossless.mkv $output_destination/
+        mv /tmp/screencast/lossless.mkv $output_destination/${file}_lossless.${ext}
         rm -rf /tmp/screencast
     else
         rm -rf /tmp/screencast
