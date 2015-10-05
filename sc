@@ -52,18 +52,6 @@ set_encoding_type() {
     echo "Would you like x264, mp4, webm, or gif encoding? [x264]"
     read encoding
 
-    if [[ "$encoding" == [Ww]* ]]
-    then
-        ext="webm"
-        audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-        video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
-	crf_options="-crf $webm_crf"
-    else
-        ext="mkv"
-        audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-        video_options="-c:v libx264 -preset $preset -threads 0"
-	crf_options="-crf $crf"
-    fi
 }
 
 set_audio_variables() {
@@ -129,14 +117,27 @@ set_audio_variables() {
 }
 
 set_window_variables() {
-    # Get window information
-    clear
-    read -n 1 -p "Press any key then click on the window you wish to record"
-    INFO=$(xwininfo -frame)
-    
-    # Put information into variables
-    WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
-    WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
+
+    echo "Would you like to record a frame or a custom rectangle? [frame]"
+    echo "1) Frame"
+    echo "2) Rectangle"
+    read screen_selection
+    if [[ $screen_selection == [2Rr]* ]]; then
+        clear
+        echo "Draw the rectange you want to record"
+        rectangle=$(xrectsel)
+        WIN_GEO=$(echo $rectangle | cut -d\+ -f1)
+        WIN_POS=$(echo $rectangle | cut -d\+ -f2,3 | tr "+" ",")
+    else
+        # Get window information
+        clear
+        read -n 1 -p "Press any key then click on the window you wish to record"
+        INFO=$(xwininfo -frame)
+        
+        # Put information into variables
+        WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
+        WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
+    fi
     first=$(echo "$WIN_GEO" | cut -d \x -f1)
     second=$(echo "$WIN_GEO" | cut -d \x -f2)
     if (($first%2!=0)) || (($second%2!=0)); then
@@ -207,6 +208,19 @@ set_encoding_variables() {
     echo ""
     echo "Enter single digit (Default: 1)"
     read pass
+
+    if [[ "$encoding" == [Ww]* ]]
+    then
+        ext="webm"
+        audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
+        video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
+        crf_options="-crf $webm_crf"
+    else
+        ext="mkv"
+        audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
+        video_options="-c:v libx264 -preset $preset -threads 0"
+        crf_options="-crf $crf"
+    fi
 }
 
 encode_video() {
