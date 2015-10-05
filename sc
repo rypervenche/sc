@@ -217,6 +217,7 @@ set_encoding_variables() {
         crf_options=""
         return
     fi
+
     clear
     echo "Choose encoding type:"
     echo ""
@@ -226,8 +227,7 @@ set_encoding_variables() {
     echo "Enter single digit (Default: 1)"
     read pass
 
-    if [[ "$encoding" == [Ww]* ]]
-    then
+    if [[ "$encoding" == [Ww]* ]]; then
         ext="webm"
         audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
         video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
