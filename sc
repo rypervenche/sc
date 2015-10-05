@@ -4,14 +4,15 @@
 pulseaudio="true" # Change to "true" if you use Pulse
 frame_rate="30"
 video_bitrate="512k" # For two pass
-webm_video_bitrate="8k" # For webm
+webm_video_bitrate="512k" # For webm
 audio_bitrate="160k" # in kilobytes
 audio_freq="44100"
 crf="18" # For one pass
-webm_crf="10" # For one pass
+webm_crf="18" # For one pass
 preset="medium" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
-output_destination="$HOME/Desktop"
-dependencies=( x264 ffmpeg libvorbis libvpx )
+output_destination="$HOME/Video/screencasts"
+dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
+gif_palette="palette.png"
 #===============================================================================
 
 # FUNCTIONS ====================================================================
@@ -28,7 +29,7 @@ EOF
 }
 
 # Check to see if all required packages are installed
-    check_for_dependencies() {
+check_for_dependencies() {
     for i in "${dependencies[@]}"
     do
         type -P "$i" &> /dev/null
@@ -48,7 +49,7 @@ move_pwd() {
 
 set_encoding_type() {
     # Webm or x264 encoding?
-    echo "Would you like webm or x264 encoding? [x264]"
+    echo "Would you like x264, mp4, webm, or gif encoding? [x264]"
     read encoding
 
     if [[ "$encoding" == [Ww]* ]]
@@ -87,12 +88,12 @@ set_audio_variables() {
             echo "2) Built-in microphone"
             echo "3) Headset microphone"
             echo ""
-            echo "Enter single digit (Press space when finished)"
+            echo "Enter single digit (Press space when finished) [1]"
             read audioA
             clear
             echo "Pavucontrol will now open."
             echo ""
-            if [[ $audioA == 1 ]]; then
+            if [[ $audioA == 1 ]] || [[ $audioA == "" ]]; then
                 echo 'Go to the Recording tab and choose "Monitor of Internal Audio".'
                 AC="2"
             elif [[ $audioA == 2 ]]; then
@@ -163,19 +164,15 @@ countdown() {
     
     # Wait for 5 seconds to prepare for recording
     clear
-    echo "Recording will begin in 5 seconds"
+    printf "Recording will begin in 5 "
     sleep 1
-    clear
-    echo "Recording will begin in 4 seconds"
+    printf "4 "
     sleep 1
-    clear
-    echo "Recording will begin in 3 seconds"
+    printf "3 "
     sleep 1
-    clear
-    echo "Recording will begin in 2 seconds"
+    printf "2 "
     sleep 1
-    clear
-    echo "Recording will begin in 1 second"
+    printf "1 "
     sleep 1
 }
 
