@@ -33,7 +33,7 @@ check_for_dependencies() {
     for i in "${dependencies[@]}"
     do
         type -P "$i" &> /dev/null
-    
+
         if [[ $? != 0 ]]; then
             echo "You need to install ${dependencies[i]}. Closing program now..."
         fi
@@ -66,10 +66,10 @@ set_audio_variables() {
     if [[ "$encoding" == [Gg]* ]]; then
         return
     fi
-    
+
     echo "Would you like audio? y/N [N]"
     read audioQ
-    
+
     # Choose audio input
     if [[ $audioQ == [yY]* ]]; then
         clear
@@ -144,7 +144,7 @@ set_window_variables() {
         clear
         read -n 1 -p "Press any key then click on the window you wish to record"
         INFO=$(xwininfo -frame)
-        
+
         # Put information into variables
         WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
         WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
@@ -173,7 +173,7 @@ countdown() {
     # Require key press to continue
     clear
     read -n 1 -p "Press any key to record"
-    
+
     # Wait for 5 seconds to prepare for recording
     clear
     printf "Recording will begin in 5 "
@@ -201,7 +201,7 @@ ask_to_encode() {
     # Ask if you want to encode the video now or wait until later
     echo "Would you like to encode the video now? Y/n"
     read encode
-    
+
     if [[ $encode == [nN]* ]]; then
         mv /tmp/screencast/lossless.mkv $output_destination/${file}_lossless.mkv
         rm -rf /tmp/screencast
@@ -259,7 +259,7 @@ encode_video() {
             ffmpeg -i lossless.mkv -pass 1 $video_options -f rawvideo -an -y /dev/null
             ffmpeg -i lossless.mkv -pass 2 -an $video_options $file.$ext
         fi
-    
+
     else
         if [[ $audioQ == [yY]* ]]; then
             ffmpeg -i lossless.mkv $audio_options $video_options $crf_options $file.$ext
@@ -274,16 +274,16 @@ cleanup() {
     mv $file.$ext $output_destination/
     echo "Would you like to keep the raw video? y/N"
     read raw
-    
+
     cd $OLDPWD
-    
+
     if [[ $raw == [yY]* ]]; then
         mv /tmp/screencast/lossless.mkv $output_destination/${file}_lossless.${ext}
         rm -rf /tmp/screencast
     else
         rm -rf /tmp/screencast
     fi
-    
+
     exit 0
 }
 
