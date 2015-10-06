@@ -130,7 +130,7 @@ set_audio_variables() {
 set_window_variables() {
 
     echo "Would you like to record a frame or a custom rectangle? [frame]"
-    echo "1) Frame"
+    echo "1) Window"
     echo "2) Rectangle"
     read screen_selection
     if [[ $screen_selection == [2Rr]* ]]; then
