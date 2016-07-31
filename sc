@@ -327,7 +327,16 @@ set_audio_variables() {
         else
             exit 1
         fi
-	audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
+
+	if [[ "$encoding" == [Ww]* ]]; then
+            audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
+	    # For mp4
+	elif [[ "$encoding" == [Mm]* ]]; then
+            audio_options="-c:a libfaac -b:a $audio_bitrate -ac $AC"
+	else
+	    # For mkv
+            audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
+	fi
     else
 	audio_options="-an"
     fi
@@ -489,19 +498,16 @@ set_encoding_variables() {
     # For webm
     if [[ "$encoding" == [Ww]* ]]; then
         ext="webm"
-        audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
         video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
 	      crf_options="-crf $webm_crf"
     # For mp4
     elif [[ "$encoding" == [Mm]* ]]; then
         ext="mp4"
-        audio_options="-c:a libfaac -b:a $audio_bitrate -ac $AC"
         video_options="-c:v libx264 -preset $preset -threads 0"
         crf_options="-crf $crf"
     else
     # For mkv
         ext="mkv"
-        audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
         video_options="-c:v libx264 -preset $preset -threads 0"
       	crf_options="-crf $crf"
     fi
