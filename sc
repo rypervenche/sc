@@ -540,28 +540,10 @@ encode_video() {
     echo "Encoding: $encode_command" >> $output_destination/lastCommand.txt
 }
 
-post_video(){
-    # If $post variable not yet set
-    if [ -z ${post+x} ]; then
-	clear
-	echo "Would you like to post ths video online? Y/n [n]"
-	read post
-    fi
-    # Posting video (it uses a 'share' script)
-    if [[ $post == [yY]* ]]; then
-	if [[ $ext == "mkv" ]]; then
-	    echo "MKV file uploading, no sound available online"
-	fi
-	share $output_destination/$file.$ext
-    fi
-
-    exit 0
-}
-
 cleanup() {
     # Remove unnecessary files and folders and exit
     mv $file.$ext $output_destination/
-    echo "Would you like to keep the raw video? y/N [N]"
+    echo "Would you like to keep the raw video? y/N"
     read raw
 
     if [[ $raw == [yY]* ]]; then
@@ -604,7 +586,5 @@ set_encoding_variables
 encode_video
 
 cleanup
-
-post_video
 
 #===============================================================================
