@@ -1,0 +1,2 @@
+# sc
+A screencasting script
