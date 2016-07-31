@@ -22,6 +22,7 @@ WHITE='\e[1;37m'
 NC='\e[0m'
 BOLD='\e[1m'
 
+
 pulseaudio="true" # Change to "true" if you use Pulse
 frame_rate="30"
 video_bitrate="512k" # For two pass
@@ -36,6 +37,26 @@ output_destination="${SC_OUTPUT_DIR:-$HOME}"
 dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 gif_palette="palette.png"
+
+# Load an optional config file
+if [ ! -f $HOME/.sc_config ]; then
+echo 'pulseaudio="true" # Change to "true" if you use Pulse
+frame_rate="30"
+video_bitrate="512k" # For two pass
+webm_video_bitrate="256k" # For webm
+audio_bitrate="160k" # in kilobytes
+audio_freq="44100"
+crf="25" # For one pass. The higher, the smaller but the crappier
+webm_crf="8" # For one pass
+preset_lossless="faster" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
+preset="faster" # for encoding
+output_destination="$HOME/Videos/sc"
+dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
+temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
+gif_palette="palette.png"' > $HOME/.sc_config
+
+    source $HOME/.sc_config
+fi
 
 usage(){
     ## Print usage of the script and exit
