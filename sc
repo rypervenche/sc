@@ -25,16 +25,175 @@ BOLD='\e[1m'
 pulseaudio="true" # Change to "true" if you use Pulse
 frame_rate="30"
 video_bitrate="512k" # For two pass
-webm_video_bitrate="512k" # For webm
+webm_video_bitrate="256k" # For webm
 audio_bitrate="160k" # in kilobytes
 audio_freq="44100"
-crf="18" # For one pass
-webm_crf="18" # For one pass
-preset="medium" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
+crf="25" # For one pass. The higher, the smaller but the crappier
+webm_crf="8" # For one pass
+preset_lossless="faster" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
+preset="faster" # for encoding
 output_destination="$HOME/Videos/sc"
 dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 gif_palette="palette.png"
+
+usage(){
+    ## Print usage of the script and exit
+    printf "Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [-n] [-o [n]] [-p <1|2>] [-q] [-r] [-w <F|R>]
+ \t-a --audio: audio - [I]nternal, [B]uilt-in, [H]eadset, [N]o audio
+ \t-c --countdown: remove countdown
+ \t-d --default: set options by default (webm, no audio, frame, default filename
+ \t-e --encoding: encoding - [x]264, [m]p4, [w]ebm, [g]if
+ \t--filename: filename - set video filename
+ \t-n --now: Now - encode without asking
+ \t-o --online: Online - post video online [y/n]
+ \t-p --pass: Passes - set number of passes (1/2)
+ \t-q --quiet: Quiet - silence ffmpeg
+ \t-r --repeat: repeat - repeat last command
+ \t-w --window: window to record - [F]rame, [R]ectangle\n"
+
+    exit 0
+}
+
+script_options=$(getopt -o cdhnqra:e:f:o::p::w: --long audio:,countdown,default,encoding:,filename:,help,online::,pass::,quiet,now,repeat,window: -- "$@")
+
+# If foreign option entered, exit
+[ $? -eq 0 ] || {
+    usage
+    exit 1
+}
+
+eval set -- "$script_options"
+
+while true; do
+    case "$1" in
+	-d|--default)
+	    audioQ=No
+	    encoding=webm
+	    file=default
+	    encode=y
+	    post=n
+	    pass=1
+	    screen_selection=frame
+	    shift;;
+	-a|--audio) # Audio options
+	    case "$2" in
+		*)
+		    if [[ $2 == [nN]* ]]; then
+			audioQ=No
+		    elif [[ $2 == [iIBbHh]* ]]; then
+			     audioQ=Yes
+			     audioA=$2
+		    else
+	    		echo "-a: available options [i]nternal|[b]uilt-in|[h]eadset|[n]o"
+	    		exit 1
+			 fi
+		    echo OK
+		    shift 2
+	    esac;;
+	-c|--countdown)
+	    countdown=false
+	    shift
+	    ;;
+	-e|--encoding) # Encoding type
+	    case "$2" in
+		*)
+		    if [[ $2 == [WwXxGgMm]* ]]; then
+			encoding=$2
+#			echo "Extension: $encoding" > $output_destination/lastCommand.txt
+		    else
+			echo "Invalid encoding option -e <w|x|g|m>. Abording..."
+			exit 1
+		    fi
+		    shift 2
+	    esac;;
+	--filename) # Filename
+	    case "$2" in
+		*)
+		    echo "Filename: $2" > $output_destination/lastCommand.txt
+		    file=$2
+		    shift 2
+	    esac;;
+	-h|--help) # Help
+	    usage
+	    ;;
+	-n|--now) # Encode now
+	    encode=y
+	    shift
+	    ;;
+	-o|--online) # Post online
+	    case "$2" in
+		"")
+		    post=y
+		    shift 2;;
+		n)
+		    post=n
+		    shift 2;;
+		y)
+		    post=y
+		    shift 2;;
+		*)
+		    echo "Invalid online option -o [n|y]. Abording..."
+		    shift 2;;
+	    esac;;
+	-p|--pass) # number of passes
+	    case "$2" in
+		"")
+		    pass=1
+		    shift 2;;
+		1)
+		    pass=1
+		    shift 2;;
+		2)
+		    pass=2
+		    shift 2;;
+		*)
+		    echo "Invalid pass option -p [1|2]. Abording..."
+		    shift 2;;
+	    esac;;
+	-q|--quiet) # silence ffmpeg
+	    quiet="-loglevel fatal"
+	    shift;;
+	-r|--repeat)
+	    echo "Repeat mode activated..."
+	    file=$(grep Filename: $output_destination/lastCommand.txt | cut -d: -f2-)
+	    ext=$(grep Extension: $output_destination/lastCommand.txt | cut -d' ' -f2-)
+	    repeat=true
+	    shift;;
+	-w|--window) # Window capture
+	    case "$2" in
+		*)
+		    if [[ $2 == [FfRr]* ]]; then
+			screen_selection=$2
+			if [[ $2 == [Ff]* ]]; then
+			    echo "Window capture set to 'frame'..."
+			else
+			    echo "Window capture set to 'rectangle'..."
+			fi
+		    else
+			echo "Invalid capture option -w. Abording..."
+			exit 1
+		    fi
+		    shift 2;;
+	    esac;;
+	--)
+	    shift
+	    break
+	    ;;
+
+	:)
+	    echo "Option -$OPTARG requires an argument." >&2
+	    exit 1
+	    ;;
+	\?)
+	    usage
+	    ;;
+    esac
+done
+
+
+
+
 #===============================================================================
 
 # FUNCTIONS ====================================================================
@@ -50,12 +209,12 @@ EOF
     clear
 }
 
-# Check to see if all required packages are installed
 check_for_dependencies() {
+    ## Check for missing dependencies
+
     for i in "${dependencies[@]}"
     do
         type -P "$i" &> /dev/null
-
         if [[ $? != 0 ]]; then
             echo "You need to install ${dependencies[i]}. Closing program now..."
         fi
@@ -64,32 +223,53 @@ check_for_dependencies() {
 }
 
 move_pwd() {
-    # Move working directory to /tmp
+    ## Move working directory to /tmp
+    mkdir -p $temp_dir
     cd $temp_dir
 }
 
 set_encoding_type() {
-    # Webm or x264 encoding?
-    echo "Would you like x264, mp4, webm, or gif encoding? [x264]"
-    read encoding
+    ## Set the type of video encoding
+
+    # If 'repeat' mode on, skip function
+    if [[ $repeat == true ]]; then
+	return
+    fi
+
+    # If encoding is not yet set, set it
+    if [ -z ${encoding+x} ]; then
+	echo "Would you like x264, mp4, webm or gif encoding? [x264]"
+	read encoding
+    fi
+
+    # For gif only
     if [[ "$encoding" == [Gg]* ]]; then
-        echo "Which size for the gif, sir? [320]"
-        read scale
-        if [ -z "$scale" ]; then
-           scale=320
-        fi
+	echo "Which size for the gif, sir? [320]"
+	read scale
+	if [ -z "$scale" ]; then
+	   scale=320
+	fi
     fi
 }
 
 set_audio_variables() {
-    # Ask if audio is necessary (skip if gif)
+    ## Set audio variables (internal, built-in, headset)
 
-    if [[ "$encoding" == [Gg]* ]]; then
-        return
+    # If 'repeat' mode on, skip function
+    if [[ $repeat == true ]]; then
+	return
     fi
 
-    echo "Would you like audio? y/N [N]"
-    read audioQ
+    # If gif is created, skip function
+    if [[ "$encoding" == [Gg]* ]]; then
+	return
+    fi
+
+    # If audio not already set, ask it
+    if [ -z ${audioQ+x} ]; then
+	echo "Would you like audio? y/N [N]"
+	read audioQ
+    fi
 
     # Choose audio input
     if [[ $audioQ == [yY]* ]]; then
@@ -102,25 +282,27 @@ set_audio_variables() {
             fi
             incoming="pulse"
             clear
-            echo "Where would you like the audio to come from?"
-            echo ""
-            echo "1) Internal audio"
-            echo "2) Built-in microphone"
-            echo "3) Headset microphone"
-            echo ""
-            echo "Enter single digit (Press space when finished) [1]"
-            read audioA
-            clear
+	    if [ -z ${audioA+x} ]; then
+		echo "Where would you like the audio to come from?"
+		echo ""
+		echo "1) Internal audio"
+		echo "2) Built-in microphone"
+		echo "3) Headset microphone"
+		echo ""
+		echo "Enter single digit (Press space when finished) [1]"
+		read audioA
+		clear
+	    fi
             echo "Pavucontrol will now open."
             echo ""
-            if [[ $audioA == 1 ]] || [[ $audioA == "" ]]; then
-                echo 'Go to the Recording tab and choose "Monitor of Internal Audio".'
-                AC="2"
-            elif [[ $audioA == 2 ]]; then
+            if [[ $audioA == 2 ]]; then
                 echo 'Go to the Recording tab and choose "Internal Audio".'
                 AC="2"
             elif [[ $audioA == 3 ]]; then
                 echo 'Go to the Recording tab and choose your headset'
+                AC="2"
+	    else
+		echo 'Go to the Recording tab and choose "Monitor of Internal Audio".'
                 AC="2"
             fi
             echo ""
@@ -145,59 +327,89 @@ set_audio_variables() {
         else
             exit 1
         fi
+	audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
+    else
+	audio_options="-an"
     fi
 }
 
 set_window_variables() {
+    ## Set which part of the screen to record (frame or rectangle)
 
-    echo "Would you like to record a frame or a custom rectangle? [Frame]"
-    echo "1) Frame"
-    echo "2) Rectangle"
-    read screen_selection
+    # If 'repeat' mode on, exit function
+    if [[ $repeat == true ]]; then
+	return
+    fi
+
+    # If window variable not already set, ask it
+    if [ -z ${screen_selection+x} ]; then
+	echo "Would you like to record a frame or a custom rectangle? [frame]"
+	echo "1) Frame"
+	echo "2) Rectangle"
+	read screen_selection
+    fi
+
+    # Rectangle mode
     if [[ $screen_selection == [2Rr]* ]]; then
-        clear
-        echo "Draw the rectange you want to record"
-        rectangle=$(xrectsel)
-        WIN_GEO=$(echo $rectangle | cut -d\+ -f1)
-        WIN_POS=$(echo $rectangle | cut -d\+ -f2,3 | tr "+" ",")
+	clear
+	echo "Draw the rectange you want to record"
+	rectangle=$(xrectsel)
+	WIN_GEO=$(echo $rectangle | cut -d\+ -f1)
+	WIN_POS=$(echo $rectangle | cut -d\+ -f2,3 | tr "+" ",")
     else
-        # Get window information
-        clear
-        read -n 1 -p "Press any key then click on the window you wish to record"
-        INFO=$(xwininfo -frame)
+	# Frame mode
+	clear
+	read -n 1 -p "Press any key then click on the window you wish to record"
+	INFO=$(xwininfo -frame)
 
-        # Put information into variables
-        WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
-        WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
+	# Put information into variables
+	WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
+	WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
     fi
     first=$(echo "$WIN_GEO" | cut -d \x -f1)
     second=$(echo "$WIN_GEO" | cut -d \x -f2)
     if (($first%2!=0)) || (($second%2!=0)); then
         if (($first%2!=0)); then
-            first=$(($first-1))
+	    first=$(($first-1))
         fi
         if (($second%2!=0)); then
-            second=$(($second-1))
+	    second=$(($second-1))
         fi
         WIN_GEO="$first"x"$second"
     fi
 }
 
 set_extension_variable() {
-    # Name file
-    clear
-    echo "Name file: (without extension)"
-    read file
+    ## Set file name
+
+    # If 'repeat' mode on, get filename from memo file
+    if [[ "$repeat" == true ]]; then
+	return
+    fi
+    # If filename not already set, ask it
+    if [ -z ${file+x} ]; then
+       clear
+       echo "Name file: (without extension)"
+       read file
+       echo "Filename: $file" > $output_destination/lastCommand.txt
+
+    fi
 }
 
 countdown() {
+    ## Sets the countdown
+
+    # If no countdown, exit function
+    if [ $countdown = false ]; then
+	return
+    fi
     # Require key press to continue
     clear
     read -n 1 -p "Press any key to record"
 
     # Wait for 5 seconds to prepare for recording
     clear
-    printf "Recording will begin in 5 "
+    printf "Recording will begin in ${RED}5 "
     sleep 1
     printf "4 "
     sleep 1
@@ -205,24 +417,40 @@ countdown() {
     sleep 1
     printf "2 "
     sleep 1
-    printf "1 "
+    printf "1 \033[0m"
     sleep 1
 }
 
 record_lossless() {
-    # Record lossless screencast with or without audio
-    if [[ $audioQ == [yY]* ]]; then
-        ffmpeg -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -r $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
+    ## Set the record_lossless command (from repeat, with audio or without), run it and then store it in memo file
+
+    # If 'repeat' mode is on, get command from memo file
+    if [[ "$repeat" == true ]]; then
+	record_lossless_command=$(grep Lossless: $output_destination/lastCommand.txt | cut -d: -f2-)
+    # With audio
+    elif [[ $audioQ == [yY]* ]]; then
+	record_lossless_command="ffmpeg $quiet -thread_queue_size 512 -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
+    # Without audio
     else
-        ffmpeg -f x11grab -r $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:v libx264 -qp 0 -preset ultrafast -threads 0 lossless.mkv
+	record_lossless_command="ffmpeg $quiet -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
     fi
+    # Store command into memo file
+    echo "Lossless: $record_lossless_command" >> $output_destination/lastCommand.txt
+    echo "Recording!"
+    # Start recording
+    eval $record_lossless_command
 }
 
 ask_to_encode() {
     # Ask if you want to encode the video now or wait until later
-    echo "Would you like to encode the video now? Y/n"
-    read encode
 
+    # If 'encode' variable is not yet set
+    if [ -z ${encode+x} ]; then
+	echo "Would you like to encode the video now? Y/n"
+	read encode
+    fi
+
+    # If set to no, simply move the raw file and quit
     if [[ $encode == [nN]* ]]; then
         mv $temp_dir/lossless.mkv $output_destination/${file}_lossless.mkv
         rm -rf $temp_dir
@@ -231,72 +459,110 @@ ask_to_encode() {
 }
 
 set_encoding_variables() {
-    # Choose encoding type
-    if [[ "$encoding" == [Gg]* ]]; then
-        video_options="fps=$frame_rate,scale=$scale:-1:flags=lanczos"
-        ext="gif"
-        crf_options=""
-        return
+    ## Sets variable for encoding, either from repeat mode, with multiple passes, or from webm/mp4/mkv, and then store the command into memo file
+
+    # In 'repeat' mode, this function is skipped
+    if [[ $repeat == true ]]; then
+	return
     fi
 
-    clear
-    echo "Choose encoding type:"
-    echo ""
-    echo "1) Single pass"
-    echo "2) Two pass"
-    echo ""
-    echo "Enter single digit (Default: 1)"
-    read pass
-
+    ## CHOOSING ENCODING TYPE
+    # For gif
+    if [[ "$encoding" == [Gg]* ]]; then
+	video_options="fps=$frame_rate,scale=$scale:-1:flags=lanczos"
+	ext="gif"
+	crf_options=""
+	echo "Extension: $ext" >> $output_destination/lastCommand.txt
+	return
+    fi
+    # If 'pass' variable is not yet set
+    if [ -z ${pass+x} ]; then
+	clear
+	echo "Choose encoding type:"
+	echo ""
+	echo "1) Single pass"
+	echo "2) Two pass"
+	echo ""
+	echo "Enter single digit (Default: 1)"
+	read pass
+    fi
+    # For webm
     if [[ "$encoding" == [Ww]* ]]; then
         ext="webm"
         audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
         video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
-        crf_options="-crf $webm_crf"
+	      crf_options="-crf $webm_crf"
+    # For mp4
     elif [[ "$encoding" == [Mm]* ]]; then
         ext="mp4"
         audio_options="-c:a libfaac -b:a $audio_bitrate -ac $AC"
         video_options="-c:v libx264 -preset $preset -threads 0"
         crf_options="-crf $crf"
     else
+    # For mkv
         ext="mkv"
         audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
         video_options="-c:v libx264 -preset $preset -threads 0"
-        crf_options="-crf $crf"
+      	crf_options="-crf $crf"
     fi
+    # Store extention into memo file
+    echo "Extension: $ext" >> $output_destination/lastCommand.txt
 }
 
 encode_video() {
-    # Encode video
+    # If repeat option active, get the stored command and run it
+    if [[ $repeat == true ]]; then
+	encode_command=$(grep Encoding: $output_destination/lastCommand.txt | cut -d: -f2-)
+#	echo $encode_command
+	eval "$encode_command"
+	return
+    fi
+
+    ## SETTING ENCODE COMMAND
+    # If creating gif
     if [[ "$encoding" == [Gg]* ]]; then
-        ffmpeg -v warning -i lossless.mkv -vf "$video_options,palettegen" -y $gif_palette
-        ffmpeg -v warning -i lossless.mkv -i $gif_palette -lavfi "$video_options [x]; [x][1:v] paletteuse" -y $file.$ext
+	encode_command="ffmpeg $quiet -v warning -i lossless.mkv -vf \"$video_options,palettegen\" -y $gif_palette && ffmpeg $quiet -v warning -i lossless.mkv -i $gif_palette -lavfi \"$video_options [x]; [x][1:v] paletteuse\" -y $file.$ext"
+    # If creating 2 passes video
     elif [[ $pass == 2 ]]; then
         video_options="$video_options -b:v $video_bitrate"
         if [[ $audioQ == [yY]* ]]; then
-            ffmpeg -i lossless.mkv -pass 1 $video_options -f rawvideo -an -y /dev/null
-            ffmpeg -i lossless.mkv -pass 2 $audio_options $video_options $file.$ext
+            encode_command="ffmpeg $quiet -i lossless.mkv -pass 1 $video_options -f rawvideo -an -y /dev/null &&  ffmpeg $quiet -i lossless.mkv -pass 2 $audio_options $video_options $file.$ext"
         else
-            ffmpeg -i lossless.mkv -pass 1 $video_options -f rawvideo -an -y /dev/null
-            ffmpeg -i lossless.mkv -pass 2 -an $video_options $file.$ext
+            encode_command="ffmpeg $quiet -i lossless.mkv -pass 1 $video_options -f rawvideo -an -y /dev/null &&  ffmpeg $quiet -i lossless.mkv -pass 2 -an $video_options $file.$ext"
         fi
-
     else
-        if [[ $audioQ == [yY]* ]]; then
-            ffmpeg -i lossless.mkv $audio_options $video_options $crf_options $file.$ext
-        else
-            ffmpeg -i lossless.mkv -an $video_options $crf_options $file.$ext
-        fi
+	# Standard command
+	encode_command="ffmpeg $quiet -i lossless.mkv $audio_options $video_options $crf_options $file.$ext"
     fi
+    # Running encode command
+    eval $encode_command
+    # Storing encode command into memo file
+    echo "Encoding: $encode_command" >> $output_destination/lastCommand.txt
+}
+
+post_video(){
+    # If $post variable not yet set
+    if [ -z ${post+x} ]; then
+	clear
+	echo "Would you like to post ths video online? Y/n [n]"
+	read post
+    fi
+    # Posting video (it uses a 'share' script)
+    if [[ $post == [yY]* ]]; then
+	if [[ $ext == "mkv" ]]; then
+	    echo "MKV file uploading, no sound available online"
+	fi
+	share $output_destination/$file.$ext
+    fi
+
+    exit 0
 }
 
 cleanup() {
     # Remove unnecessary files and folders and exit
     mv $file.$ext $output_destination/
-    echo "Would you like to keep the raw video? y/N"
+    echo "Would you like to keep the raw video? y/N [N]"
     read raw
-
-    cd $OLDPWD
 
     if [[ $raw == [yY]* ]]; then
         mv $temp_dir/lossless.mkv $output_destination/${file}_lossless.${ext}
@@ -304,13 +570,15 @@ cleanup() {
     else
         rm -rf $temp_dir
     fi
+    cd $HOME
 
-    exit 0
 }
 
 #===============================================================================
 
 # COMMANDS =====================================================================
+
+
 show_license
 
 check_for_dependencies
@@ -336,4 +604,7 @@ set_encoding_variables
 encode_video
 
 cleanup
+
+post_video
+
 #===============================================================================
