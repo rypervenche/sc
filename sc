@@ -71,6 +71,7 @@ while true; do
 	    audioQ=No
 	    encoding=webm
 	    file=default
+	    echo "Filename: default" > $output_destination/lastCommand.txt
 	    encode=y
 	    post=n
 	    pass=1
@@ -100,7 +101,6 @@ while true; do
 		*)
 		    if [[ $2 == [WwXxGgMm]* ]]; then
 			encoding=$2
-#			echo "Extension: $encoding" > $output_destination/lastCommand.txt
 		    else
 			echo "Invalid encoding option -e <w|x|g|m>. Abording..."
 			exit 1
@@ -432,8 +432,10 @@ record_lossless() {
     else
 	record_lossless_command="ffmpeg $quiet -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
     fi
-    # Store command into memo file
-    echo "Lossless: $record_lossless_command" >> $output_destination/lastCommand.txt
+    # Store command into memo file, except if in repeat mode
+    if [[ "$repeat" != true ]]; then
+	echo "Lossless: $record_lossless_command" >> $output_destination/lastCommand.txt
+    fi
     echo "Recording!"
     # Start recording
     eval $record_lossless_command
