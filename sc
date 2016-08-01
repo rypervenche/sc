@@ -47,7 +47,7 @@ default_window=frame
 
 # Load an optional config file
 if [ ! -f $HOME/.sc_config ]; then
-echo 'pulseaudio="true" # Change to "true" if you use Pulse
+echo 'pulseaudio="true"
 frame_rate="30"
 video_bitrate="512k" # For two pass
 webm_video_bitrate="256k" # For webm
@@ -57,15 +57,30 @@ crf="25" # For one pass. The higher, the smaller but the crappier
 webm_crf="8" # For one pass
 preset_lossless="faster" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
 preset="faster" # for encoding
-output_destination="${HOME}"
+
 dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 gif_palette="palette.png"
+
+# Set the output destination
+output_destination="${HOME}"
+
+# Set default output format (mp4/mkv/webm/gif)
 default_encoding=webm
+
+# Set audio preferences (y/n)
 default_audio=n
+
+# Set the default output filename
 default_filename=default_name
+
+# Set if you want to encode directly after recording (y) or not (n)
 default_encode=y
+
+# Set the number of passes (1/2)
 default_pass=1
+
+# Set the type of window you want to record (frame / rectangle)
 default_window=frame' > $HOME/.sc_config
 
 
