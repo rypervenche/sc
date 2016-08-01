@@ -45,50 +45,50 @@ default_pass=1
 default_window=frame
 
 create_config() {
-echo 'pulseaudio="true"
-frame_rate="30"
-video_bitrate="512k" # For two pass
-webm_video_bitrate="256k" # For webm
-audio_bitrate="160k" # in kilobytes
-audio_freq="44100"
-crf="25" # For one pass. The higher, the smaller but the crappier
-webm_crf="8" # For one pass
-preset_lossless="faster" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
-preset="faster" # for encoding
+echo "pulseaudio=\"$pulseaudio\"
+frame_rate=\"$frame_rate\"
+video_bitrate=\"$video_bitrate\" # For two pass
+webm_video_bitrate=\"$webm_video_bitrate\" # For webm
+audio_bitrate=\"$audio_bitrate\" # in kilobytes
+audio_freq=\"$audio_freq\"
+crf=\"$crf\" # For one pass. The higher, the smaller but the crappier
+webm_crf=\"$webm_crf\" # For one pass
+preset_lossless=\"$preset_lossless\" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
+preset=\"$preset\" # for encoding
 
-dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
-temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
-gif_palette="palette.png"
+dependencies=( ${dependencies[@]} )
+temp_dir=\"$temp_dir\"
+gif_palette=\"$gif_palette\"
 
 # Set the output destination
-output_destination="$HOME"
+output_destination=\"$output_destination\"
 
 # File storing last command (in output_destination)
-memo_file=lastCommand.txt
+memo_file=$memo_file
 
 # Set default output format [x264|mp4|webm|gif]
-default_encoding=webm
+default_encoding=$default_encoding
 
 # Set audio preferences [y|n]
-default_audio=n
+default_audio=$default_audio
 
 # Set the default output filename without extension
-default_filename=default_name
+default_filename=$default_filename
 
 # Set if you want to encode directly after recording [y|n]
-default_encode=y
+default_encode=$default_encode
 
 # Set the number of passes [1|2]
-default_pass=1
+default_pass=$default_pass
 
 # Set the type of window you want to record [frame|rectangle]
-default_window=frame
+default_window=$default_window
 
 # Set if you want to keep raw file or not
-default_raw=false
+default_raw=$default_raw
 
 # Set default countdown setting [true|false]
-default_countdown=true' > $HOME/.sc_config
+default_countdown=$default_countdown" > $HOME/.sc_config
 }
 
 # Load an optional config file
