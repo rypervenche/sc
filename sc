@@ -63,33 +63,33 @@ temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 gif_palette="palette.png"
 
 # Set the output destination
-output_destination="${HOME}"
+output_destination="$HOME"
 
 # File storing last command (in output_destination)
 memo_file=lastCommand.txt
 
-# Set default output format (mp4/mkv/webm/gif)
+# Set default output format [x264|mp4|webm|gif]
 default_encoding=webm
 
-# Set audio preferences (y/n)
+# Set audio preferences [y|n]
 default_audio=n
 
-# Set the default output filename
+# Set the default output filename without extension
 default_filename=default_name
 
-# Set if you want to encode directly after recording (y) or not (n)
+# Set if you want to encode directly after recording [y|n]
 default_encode=y
 
-# Set the number of passes (1/2)
+# Set the number of passes [1|2]
 default_pass=1
 
-# Set the type of window you want to record (frame / rectangle)
+# Set the type of window you want to record [frame|rectangle]
 default_window=frame
 
 # Set if you want to keep raw file or not
 default_raw=false
 
-# Set default countdown setting (true/false)
+# Set default countdown setting [true|false]
 default_countdown=true' > $HOME/.sc_config
 fi
 
