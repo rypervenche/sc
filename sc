@@ -37,6 +37,13 @@ output_destination="${HOME}"
 dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 gif_palette="palette.png"
+default_encoding=webm
+default_audio=n
+default_filename=default_name
+default_encode=y
+default_pass=1
+default_window=frame
+
 
 # Load an optional config file
 if [ ! -f $HOME/.sc_config ]; then
@@ -53,7 +60,14 @@ preset="faster" # for encoding
 output_destination="${HOME}"
 dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
-gif_palette="palette.png"' > $HOME/.sc_config
+gif_palette="palette.png"
+default_encoding=webm
+default_audio=n
+default_filename=default_name
+default_encode=y
+default_pass=1
+default_window=frame' > $HOME/.sc_config
+
 
     source $HOME/.sc_config
 fi
@@ -89,14 +103,13 @@ eval set -- "$script_options"
 while true; do
     case "$1" in
 	-d|--default)
-	    audioQ=No
-	    encoding=webm
-	    file=default
-	    echo "Filename: default" > $output_destination/lastCommand.txt
-	    encode=y
-	    post=n
-	    pass=1
-	    screen_selection=frame
+	    audioQ=$default_audio
+	    encoding=$default_encoding
+	    file=$default_filename
+	    echo "Filename: $default_filename" > $output_destination/lastCommand.txt
+	    encode=$default_encode
+	    pass=$default_pass
+	    screen_selection=$default_window
 	    shift;;
 	-a|--audio) # Audio options
 	    case "$2" in
