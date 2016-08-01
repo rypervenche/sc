@@ -81,7 +81,10 @@ default_encode=y
 default_pass=1
 
 # Set the type of window you want to record (frame / rectangle)
-default_window=frame' > $HOME/.sc_config
+default_window=frame
+
+# Set default countdown setting (true/false)
+default_countdown=true' > $HOME/.sc_config
 fi
 
 source $HOME/.sc_config
@@ -127,6 +130,7 @@ while true; do
 	    encode=$default_encode
 	    pass=$default_pass
 	    screen_selection=$default_window
+	    countdown=$default_countdown
 	    shift;;
 	-a|--audio) # Audio options
 	    case "$2" in
