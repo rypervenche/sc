@@ -97,7 +97,7 @@ usage(){
  \t-c --countdown: remove countdown
  \t-d --default: set options by default (webm, no audio, frame, default filename
  \t-e --encoding: encoding - [x]264, [m]p4, [w]ebm, [g]if
- \t--filename: filename - set video filenameq
+ \t-f --filename: filename - set video filename
  \t-n --now: Now - encode without asking
  \t-o --online: Online - post video online [y/n]
  \t-p --pass: Passes - set number of passes (1/2)
@@ -159,7 +159,7 @@ while true; do
 		    fi
 		    shift 2
 	    esac;;
-	--filename) # Filename
+	-f|--filename) # Filename
 	    case "$2" in
 		*)
 		    echo "Filename: $2" > $output_destination/lastCommand.txt
