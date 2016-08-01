@@ -62,6 +62,7 @@ preset=\"$preset\" # for encoding
 dependencies=( ${dependencies[@]} )
 gif_palette=\"$gif_palette\"
 
+
 # Set the output destination
 output_destination=\"$output_destination\"
 
@@ -107,7 +108,7 @@ usage(){
     printf "Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [-n] [-o [n]] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
  \t-a --audio: Set audio input - [I]nternal, [B]uilt-in, [H]eadset, [N]o audio
  \t-c --countdown: Remove countdown
- \t-d --default: Set options by default (webm, no audio, frame, default filename)
+ \t-d --default: Use default options ($default_encoding, audio=$default_audio, $default_window, filename=$default_filename)
  \t-e --encoding: Set encoding type - [x]264, [m]p4, [w]ebm, [g]if
  \t-f --filename: Set video filename
  \t--new-config: Create a new .sc_config file
