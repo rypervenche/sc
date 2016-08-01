@@ -101,14 +101,14 @@ fi
 
 usage(){
     ## Print usage of the script and exit
-    printf "Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [-n] [-o [n]] [-p <1|2>] [-q] [-r] [-w <F|R>]
- \t-a --audio: audio - [I]nternal, [B]uilt-in, [H]eadset, [N]o audio
- \t-c --countdown: remove countdown
- \t-d --default: set options by default (webm, no audio, frame, default filename
- \t-e --encoding: encoding - [x]264, [m]p4, [w]ebm, [g]if
- \t-f --filename: filename - set video filename
- \t-n --now: Now - encode without asking
- \t-p --pass: Passes - set number of passes (1/2)
+    printf "Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [-n] [-o [n]] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
+ \t-a --audio: Set audio input - [I]nternal, [B]uilt-in, [H]eadset, [N]o audio
+ \t-c --countdown: Remove countdown
+ \t-d --default: Set options by default (webm, no audio, frame, default filename)
+ \t-e --encoding: Set encoding type - [x]264, [m]p4, [w]ebm, [g]if
+ \t-f --filename: Set video filename
+ \t-n --now: Encode without asking
+ \t-p --pass: Set number of passes (1/2)
  \t-q --quiet: Quiet - silence ffmpeg
  \t--raw: Keep raw lossless file
  \t-r --repeat: Repeat last command
