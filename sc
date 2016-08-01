@@ -48,7 +48,9 @@ default_window=frame
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 
 create_config() {
-echo "pulseaudio=\"$pulseaudio\"
+echo "# sc configuration file v2.0
+
+pulseaudio=\"$pulseaudio\"
 frame_rate=\"$frame_rate\"
 video_bitrate=\"$video_bitrate\" # For two pass
 webm_video_bitrate=\"$webm_video_bitrate\" # For webm
