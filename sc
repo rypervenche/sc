@@ -65,6 +65,9 @@ gif_palette="palette.png"
 # Set the output destination
 output_destination="${HOME}"
 
+# File storing last command (in output_destination)
+memo_file=lastCommand.txt
+
 # Set default output format (mp4/mkv/webm/gif)
 default_encoding=webm
 
@@ -92,8 +95,8 @@ fi
 
 source $HOME/.sc_config
 
-if [ ! -f $output_destination/lastCommand.txt ]; then
-   touch $output_destination/lastCommand.txt
+if [ ! -f $output_destination/$memo_file ]; then
+   touch $output_destination/$memo_file
 fi
 
 usage(){
@@ -129,7 +132,7 @@ while true; do
 	    audioQ=$default_audio
 	    encoding=$default_encoding
 	    file=$default_filename
-	    echo "Filename: $default_filename" > $output_destination/lastCommand.txt
+	    echo "Filename: $default_filename" > $output_destination/$memo_file
 	    encode=$default_encode
 	    pass=$default_pass
 	    screen_selection=$default_window
@@ -169,7 +172,7 @@ while true; do
 	-f|--filename) # Filename
 	    case "$2" in
 		*)
-		    echo "Filename: $2" > $output_destination/lastCommand.txt
+		    echo "Filename: $2" > $output_destination/$memo_file
 		    file=$2
 		    shift 2
 	    esac;;
@@ -200,8 +203,8 @@ while true; do
 	    shift;;
 	-r|--repeat)
 	    echo "Repeat mode activated..."
-	    file=$(grep Filename: $output_destination/lastCommand.txt | cut -d: -f2-)
-	    ext=$(grep Extension: $output_destination/lastCommand.txt | cut -d' ' -f2-)
+	    file=$(grep Filename: $output_destination/$memo_file | cut -d: -f2-)
+	    ext=$(grep Extension: $output_destination/$memo_file | cut -d' ' -f2-)
 	    repeat=true
 	    shift;;
 	-w|--window) # Window capture
@@ -433,7 +436,7 @@ set_extension_variable() {
        clear
        echo "Name file: (without extension)"
        read file
-       echo "Filename: $file" > $output_destination/lastCommand.txt
+       echo "Filename: $file" > $output_destination/$memo_file
 
     fi
 }
@@ -468,7 +471,7 @@ record_lossless() {
 
     # If 'repeat' mode is on, get command from memo file
     if [[ "$repeat" == true ]]; then
-	record_lossless_command=$(grep Lossless: $output_destination/lastCommand.txt | cut -d: -f2-)
+	record_lossless_command=$(grep Lossless: $output_destination/$memo_file | cut -d: -f2-)
     # With audio
     elif [[ $audioQ == [yY]* ]]; then
 	record_lossless_command="ffmpeg $quiet -thread_queue_size 512 -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
@@ -478,7 +481,7 @@ record_lossless() {
     fi
     # Store command into memo file, except if in repeat mode
     if [[ "$repeat" != true ]]; then
-	echo "Lossless: $record_lossless_command" >> $output_destination/lastCommand.txt
+	echo "Lossless: $record_lossless_command" >> $output_destination/$memo_file
     fi
     echo "Recording!"
     # Start recording
@@ -516,7 +519,7 @@ set_encoding_variables() {
 	video_options="fps=$frame_rate,scale=$scale:-1:flags=lanczos"
 	ext="gif"
 	crf_options=""
-	echo "Extension: $ext" >> $output_destination/lastCommand.txt
+	echo "Extension: $ext" >> $output_destination/$memo_file
 	return
     fi
     # If 'pass' variable is not yet set
@@ -547,13 +550,13 @@ set_encoding_variables() {
       	crf_options="-crf $crf"
     fi
     # Store extention into memo file
-    echo "Extension: $ext" >> $output_destination/lastCommand.txt
+    echo "Extension: $ext" >> $output_destination/$memo_file
 }
 
 encode_video() {
     # If repeat option active, get the stored command and run it
     if [[ $repeat == true ]]; then
-	encode_command=$(grep Encoding: $output_destination/lastCommand.txt | cut -d: -f2-)
+	encode_command=$(grep Encoding: $output_destination/$memo_file | cut -d: -f2-)
 #	echo $encode_command
 	eval "$encode_command"
 	return
@@ -578,7 +581,7 @@ encode_video() {
     # Running encode command
     eval $encode_command
     # Storing encode command into memo file
-    echo "Encoding: $encode_command" >> $output_destination/lastCommand.txt
+    echo "Encoding: $encode_command" >> $output_destination/$memo_file
 }
 
 cleanup() {
