@@ -99,7 +99,6 @@ usage(){
  \t-e --encoding: encoding - [x]264, [m]p4, [w]ebm, [g]if
  \t-f --filename: filename - set video filename
  \t-n --now: Now - encode without asking
- \t-o --online: Online - post video online [y/n]
  \t-p --pass: Passes - set number of passes (1/2)
  \t-q --quiet: Quiet - silence ffmpeg
  \t-r --repeat: repeat - repeat last command
@@ -108,7 +107,7 @@ usage(){
     exit 0
 }
 
-script_options=$(getopt -o cdhnqra:e:f:o::p::w: --long audio:,countdown,default,encoding:,filename:,help,online::,pass::,quiet,now,repeat,window: -- "$@")
+script_options=$(getopt -o cdhnqra:e:f:p::w: --long audio:,countdown,default,encoding:,filename:,help,pass::,quiet,now,repeat,window: -- "$@")
 
 # If foreign option entered, exit
 [ $? -eq 0 ] || {
@@ -173,21 +172,6 @@ while true; do
 	    encode=y
 	    shift
 	    ;;
-	-o|--online) # Post online
-	    case "$2" in
-		"")
-		    post=y
-		    shift 2;;
-		n)
-		    post=n
-		    shift 2;;
-		y)
-		    post=y
-		    shift 2;;
-		*)
-		    echo "Invalid online option -o [n|y]. Abording..."
-		    shift 2;;
-	    esac;;
 	-p|--pass) # number of passes
 	    case "$2" in
 		"")
