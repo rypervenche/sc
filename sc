@@ -83,6 +83,9 @@ default_pass=1
 # Set the type of window you want to record (frame / rectangle)
 default_window=frame
 
+# Set if you want to keep raw file or not
+default_raw=false
+
 # Set default countdown setting (true/false)
 default_countdown=true' > $HOME/.sc_config
 fi
@@ -131,6 +134,7 @@ while true; do
 	    pass=$default_pass
 	    screen_selection=$default_window
 	    countdown=$default_countdown
+	    raw=$default_raw
 	    shift;;
 	-a|--audio) # Audio options
 	    case "$2" in
@@ -580,8 +584,10 @@ encode_video() {
 cleanup() {
     # Remove unnecessary files and folders and exit
     mv $file.$ext $output_destination/
-    echo "Would you like to keep the raw video? y/N"
-    read raw
+    if [ -z ${raw+x} ]; then
+	echo "Would you like to keep the raw video? y/N"
+	read raw
+    fi
 
     if [[ $raw == [yY]* ]]; then
         mv $temp_dir/lossless.mkv $output_destination/${file}_lossless.${ext}
