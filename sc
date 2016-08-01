@@ -90,6 +90,8 @@ default_raw=$default_raw
 
 # Set default countdown setting [true|false]
 default_countdown=$default_countdown" > $HOME/.sc_config
+
+echo "$HOME/.sc_config created"
 }
 
 # Load an optional config file
