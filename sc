@@ -22,7 +22,7 @@ WHITE='\e[1;37m'
 NC='\e[0m'
 BOLD='\e[1m'
 
-
+# Config variables
 pulseaudio="true" # Change to "true" if you use Pulse
 frame_rate="30"
 video_bitrate="512k" # For two pass
@@ -35,7 +35,6 @@ preset_lossless="faster" # ultrafast, superfast, veryfast, faster, fast, medium,
 preset="faster" # for encoding
 output_destination="${HOME}"
 dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
-temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 gif_palette="palette.png"
 default_encoding=webm
 default_audio=n
@@ -43,6 +42,9 @@ default_filename=default_name
 default_encode=y
 default_pass=1
 default_window=frame
+
+# Static variables
+temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 
 create_config() {
 echo "pulseaudio=\"$pulseaudio\"
@@ -57,7 +59,6 @@ preset_lossless=\"$preset_lossless\" # ultrafast, superfast, veryfast, faster, f
 preset=\"$preset\" # for encoding
 
 dependencies=( ${dependencies[@]} )
-temp_dir=\"$temp_dir\"
 gif_palette=\"$gif_palette\"
 
 # Set the output destination
