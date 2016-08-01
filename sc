@@ -23,6 +23,7 @@ NC='\e[0m'
 BOLD='\e[1m'
 
 # Config variables
+set_default_variables(){
 pulseaudio="true" # Change to "true" if you use Pulse
 frame_rate="30"
 video_bitrate="512k" # For two pass
@@ -45,11 +46,14 @@ default_pass=1
 default_window=frame
 default_raw=n
 default_countdown=n
+}
+set_default_variables
 
 # Static variables
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 
-create_config() {
+create_config(){
+set_default_variables
 echo "# sc configuration file v2.0
 
 pulseaudio=\"$pulseaudio\"
