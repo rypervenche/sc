@@ -35,8 +35,6 @@ webm_crf="8" # For one pass
 preset_lossless="faster" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
 preset="faster" # for encoding
 output_destination="${HOME}"
-dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
-gif_palette="palette.png"
 memo_file="$output_destination/lastCommand.txt"
 default_encoding=webm
 default_audio=n
@@ -51,6 +49,10 @@ set_default_variables
 
 # Static variables
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
+containers=( webm mkv mp4 )
+dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
+gif_palette="palette.png"
+
 
 create_config(){
 set_default_variables
