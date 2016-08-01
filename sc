@@ -36,6 +36,7 @@ preset="faster" # for encoding
 output_destination="${HOME}"
 dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
 gif_palette="palette.png"
+memo_file="$output_destination/lastCommand.txt"
 default_encoding=webm
 default_audio=n
 default_filename=default_name
@@ -101,8 +102,8 @@ fi
 
 source $HOME/.sc_config
 
-if [ ! -f $output_destination/$memo_file ]; then
-   touch $output_destination/$memo_file
+if [ ! -f $memo_file ]; then
+   touch $memo_file
 fi
 
 usage(){
@@ -140,7 +141,7 @@ while true; do
 	    audioQ=$default_audio
 	    encoding=$default_encoding
 	    file=$default_filename
-	    echo "Filename: $default_filename" > $output_destination/$memo_file
+	    echo "Filename: $default_filename" > $memo_file
 	    encode=$default_encode
 	    pass=$default_pass
 	    screen_selection=$default_window
@@ -180,7 +181,7 @@ while true; do
 	-f|--filename) # Filename
 	    case "$2" in
 		*)
-		    echo "Filename: $2" > $output_destination/$memo_file
+		    echo "Filename: $2" > $memo_file
 		    file=$2
 		    shift 2
 	    esac;;
@@ -215,12 +216,12 @@ while true; do
 	    shift;;
 	-r|--repeat)
 	    echo "Repeat mode activated..."
-	    file=$(grep Filename: $output_destination/$memo_file | cut -d: -f2-)
-	    ext=$(grep Extension: $output_destination/$memo_file | cut -d' ' -f2-)
+	    file=$(grep Filename: $memo_file | cut -d: -f2-)
+	    ext=$(grep Extension: $memo_file | cut -d' ' -f2-)
 	    repeat=true
-	    countdown=$(grep Countdown: $output_destination/$memo_file | cut -d' ' -f2-)
-	    encode=$(grep Encode: $output_destination/$memo_file | cut -d' ' -f2-)
-	    raw=$(grep Raw: $output_destination/$memo_file | cut -d' ' -f2-)
+	    countdown=$(grep Countdown: $memo_file | cut -d' ' -f2-)
+	    encode=$(grep Encode: $memo_file | cut -d' ' -f2-)
+	    raw=$(grep Raw: $memo_file | cut -d' ' -f2-)
 	    shift;;
 	--raw)
 	    raw=true
@@ -454,7 +455,7 @@ set_extension_variable() {
        clear
        echo "Name file: (without extension)"
        read file
-       echo "Filename: $file" > $output_destination/$memo_file
+       echo "Filename: $file" > $memo_file
 
     fi
 }
@@ -464,7 +465,7 @@ countdown() {
 
     # Stores the countdown value, only if not in repeat mode
     if [[ "$repeat" != true ]]; then
-	echo "Countdown: $countdown" >> $output_destination/$memo_file
+	echo "Countdown: $countdown" >> $memo_file
     fi
 
     # If no countdown, exit function
@@ -494,7 +495,7 @@ record_lossless() {
 
     # If 'repeat' mode is on, get command from memo file
     if [[ "$repeat" == true ]]; then
-	record_lossless_command=$(grep Lossless: $output_destination/$memo_file | cut -d: -f2-)
+	record_lossless_command=$(grep Lossless: $memo_file | cut -d: -f2-)
     # With audio
     elif [[ $audioQ == [yY]* ]]; then
 	record_lossless_command="ffmpeg $quiet -thread_queue_size 512 -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
@@ -504,7 +505,7 @@ record_lossless() {
     fi
     # Store command into memo file, except if in repeat mode
     if [[ "$repeat" != true ]]; then
-	echo "Lossless: $record_lossless_command" >> $output_destination/$memo_file
+	echo "Lossless: $record_lossless_command" >> $memo_file
     fi
     echo "Recording!"
     # Start recording
@@ -518,7 +519,7 @@ ask_to_encode() {
     if [ -z ${encode+x} ]; then
 	echo "Would you like to encode the video now? Y/n"
 	read encode
-	echo "Encode: $encode" >> $output_destination/$memo_file
+	echo "Encode: $encode" >> $memo_file
     fi
 
     # If set to no, simply move the raw file and quit
@@ -543,7 +544,7 @@ set_encoding_variables() {
 	video_options="fps=$frame_rate,scale=$scale:-1:flags=lanczos"
 	ext="gif"
 	crf_options=""
-	echo "Extension: $ext" >> $output_destination/$memo_file
+	echo "Extension: $ext" >> $memo_file
 	return
     fi
     # If 'pass' variable is not yet set
@@ -574,13 +575,13 @@ set_encoding_variables() {
       	crf_options="-crf $crf"
     fi
     # Store extention into memo file
-    echo "Extension: $ext" >> $output_destination/$memo_file
+    echo "Extension: $ext" >> $memo_file
 }
 
 encode_video() {
     # If repeat option active, get the stored command and run it
     if [[ $repeat == true ]]; then
-	encode_command=$(grep Encoding: $output_destination/$memo_file | cut -d: -f2-)
+	encode_command=$(grep Encoding: $memo_file | cut -d: -f2-)
 #	echo $encode_command
 	eval "$encode_command"
 	return
@@ -605,7 +606,7 @@ encode_video() {
     # Running encode command
     eval $encode_command
     # Storing encode command into memo file
-    echo "Encoding: $encode_command" >> $output_destination/$memo_file
+    echo "Encoding: $encode_command" >> $memo_file
 }
 
 cleanup() {
@@ -614,7 +615,7 @@ cleanup() {
     if [ -z ${raw+x} ]; then
 	echo "Would you like to keep the raw video? y/N"
 	read raw
-	echo "Raw: $raw" >> $output_destination/$memo_file
+	echo "Raw: $raw" >> $memo_file
     fi
 
     if [[ $raw == [yY]* ]]; then
