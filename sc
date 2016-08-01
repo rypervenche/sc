@@ -102,10 +102,6 @@ fi
 
 source $HOME/.sc_config
 
-if [ ! -f $memo_file ]; then
-   touch $memo_file
-fi
-
 usage(){
     ## Print usage of the script and exit
     printf "Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [-n] [-o [n]] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
