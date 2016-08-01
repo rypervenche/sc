@@ -82,10 +82,9 @@ default_pass=1
 
 # Set the type of window you want to record (frame / rectangle)
 default_window=frame' > $HOME/.sc_config
-
-
-    source $HOME/.sc_config
 fi
+
+source $HOME/.sc_config
 
 usage(){
     ## Print usage of the script and exit
@@ -94,7 +93,7 @@ usage(){
  \t-c --countdown: remove countdown
  \t-d --default: set options by default (webm, no audio, frame, default filename
  \t-e --encoding: encoding - [x]264, [m]p4, [w]ebm, [g]if
- \t--filename: filename - set video filename
+ \t--filename: filename - set video filenameq
  \t-n --now: Now - encode without asking
  \t-o --online: Online - post video online [y/n]
  \t-p --pass: Passes - set number of passes (1/2)
