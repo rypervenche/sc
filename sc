@@ -86,6 +86,10 @@ fi
 
 source $HOME/.sc_config
 
+if [ ! -f $output_destination/lastCommand.txt ]; then
+   touch $output_destination/lastCommand.txt
+fi
+
 usage(){
     ## Print usage of the script and exit
     printf "Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [-n] [-o [n]] [-p <1|2>] [-q] [-r] [-w <F|R>]
