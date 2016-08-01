@@ -116,7 +116,7 @@ usage(){
     exit 0
 }
 
-script_options=$(getopt -o cdhnqra:e:f:p::w: --long audio:,countdown,default,encoding:,filename:,help,pass::,quiet,now,repeat,window: -- "$@")
+script_options=$(getopt -o cdhnqra:e:f:p::w: --long audio:,countdown,default,encoding:,filename:,help,pass::,quiet,now,repeat,window,raw: -- "$@")
 
 # If foreign option entered, exit
 [ $? -eq 0 ] || {
@@ -206,6 +206,12 @@ while true; do
 	    file=$(grep Filename: $output_destination/$memo_file | cut -d: -f2-)
 	    ext=$(grep Extension: $output_destination/$memo_file | cut -d' ' -f2-)
 	    repeat=true
+	    countdown=$(grep Countdown: $output_destination/$memo_file | cut -d' ' -f2-)
+	    encode=$(grep Encode: $output_destination/$memo_file | cut -d' ' -f2-)
+	    raw=$(grep Raw: $output_destination/$memo_file | cut -d' ' -f2-)
+	    shift;;
+	--raw)
+	    raw=true
 	    shift;;
 	-w|--window) # Window capture
 	    case "$2" in
@@ -444,6 +450,11 @@ set_extension_variable() {
 countdown() {
     ## Sets the countdown
 
+    # Stores the countdown value, only if not in repeat mode
+    if [[ "$repeat" != true ]]; then
+	echo "Countdown: $countdown" >> $output_destination/$memo_file
+    fi
+
     # If no countdown, exit function
     if [ $countdown = false ]; then
 	return
@@ -495,6 +506,7 @@ ask_to_encode() {
     if [ -z ${encode+x} ]; then
 	echo "Would you like to encode the video now? Y/n"
 	read encode
+	echo "Encode: $encode" >> $output_destination/$memo_file
     fi
 
     # If set to no, simply move the raw file and quit
@@ -590,6 +602,7 @@ cleanup() {
     if [ -z ${raw+x} ]; then
 	echo "Would you like to keep the raw video? y/N"
 	read raw
+	echo "Raw: $raw" >> $output_destination/$memo_file
     fi
 
     if [[ $raw == [yY]* ]]; then
