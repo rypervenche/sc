@@ -43,6 +43,8 @@ default_filename=default_name
 default_encode=y
 default_pass=1
 default_window=frame
+default_raw=n
+default_countdown=n
 
 # Static variables
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
