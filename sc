@@ -44,9 +44,7 @@ default_encode=y
 default_pass=1
 default_window=frame
 
-
-# Load an optional config file
-if [ ! -f $HOME/.sc_config ]; then
+create_config() {
 echo 'pulseaudio="true"
 frame_rate="30"
 video_bitrate="512k" # For two pass
@@ -91,6 +89,11 @@ default_raw=false
 
 # Set default countdown setting [true|false]
 default_countdown=true' > $HOME/.sc_config
+}
+
+# Load an optional config file
+if [ ! -f $HOME/.sc_config ]; then
+	create_config
 fi
 
 source $HOME/.sc_config
@@ -107,6 +110,7 @@ usage(){
  \t-d --default: Set options by default (webm, no audio, frame, default filename)
  \t-e --encoding: Set encoding type - [x]264, [m]p4, [w]ebm, [g]if
  \t-f --filename: Set video filename
+ \t--new-config: Create a new .sc_config file
  \t-n --now: Encode without asking
  \t-p --pass: Set number of passes (1/2)
  \t-q --quiet: Quiet - silence ffmpeg
@@ -117,7 +121,7 @@ usage(){
     exit 0
 }
 
-script_options=$(getopt -o cdhnqra:e:f:p::w: --long audio:,countdown,default,encoding:,filename:,help,pass::,quiet,now,repeat,window,raw -- "$@")
+script_options=$(getopt -o cdhnqra:e:f:p::w: --long audio:,countdown,default,encoding:,filename:,help,pass::,quiet,new-config,now,repeat,window,raw -- "$@")
 
 # If foreign option entered, exit
 [ $? -eq 0 ] || {
@@ -179,6 +183,10 @@ while true; do
 	    esac;;
 	-h|--help) # Help
 	    usage
+	    ;;
+	--new-config) # New config
+	    create_config
+	    exit 0
 	    ;;
 	-n|--now) # Encode now
 	    encode=y
