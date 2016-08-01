@@ -110,13 +110,14 @@ usage(){
  \t-n --now: Now - encode without asking
  \t-p --pass: Passes - set number of passes (1/2)
  \t-q --quiet: Quiet - silence ffmpeg
- \t-r --repeat: repeat - repeat last command
- \t-w --window: window to record - [F]rame, [R]ectangle\n"
+ \t--raw: Keep raw lossless file
+ \t-r --repeat: Repeat last command
+ \t-w --window: Window to record - [F]rame, [R]ectangle\n"
 
     exit 0
 }
 
-script_options=$(getopt -o cdhnqra:e:f:p::w: --long audio:,countdown,default,encoding:,filename:,help,pass::,quiet,now,repeat,window,raw: -- "$@")
+script_options=$(getopt -o cdhnqra:e:f:p::w: --long audio:,countdown,default,encoding:,filename:,help,pass::,quiet,now,repeat,window,raw -- "$@")
 
 # If foreign option entered, exit
 [ $? -eq 0 ] || {
