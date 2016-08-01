@@ -105,7 +105,7 @@ source $HOME/.sc_config
 
 usage(){
     ## Print usage of the script and exit
-    printf "Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [-n] [-o [n]] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
+    printf "Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [-n] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
  \t-a --audio: Set audio input - [I]nternal, [B]uilt-in, [H]eadset, [N]o audio
  \t-c --countdown: Remove countdown
  \t-d --default: Use default options ($default_encoding, audio=$default_audio, $default_window, filename=$default_filename)
@@ -122,7 +122,7 @@ usage(){
     exit 0
 }
 
-script_options=$(getopt -o cdhnqra:e:f:p::w: --long audio:,countdown,default,encoding:,filename:,help,pass::,quiet,new-config,now,repeat,window,raw -- "$@")
+script_options=$(getopt -o a:cde:f:hnp::qrw: --long audio:,countdown,default,encoding:,filename:,help,new-config,now,pass::,quiet,raw,repeat,window: -- "$@")
 
 # If foreign option entered, exit
 [ $? -eq 0 ] || {
