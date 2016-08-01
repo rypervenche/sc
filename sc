@@ -169,7 +169,7 @@ while true; do
 		    if [[ $2 == [WwXxGgMm]* ]]; then
 			encoding=$2
 		    else
-			echo "Invalid encoding option -e <w|x|g|m>. Abording..."
+			echo "Invalid encoding option -e <w|x|g|m>. Aborting..."
 			exit 1
 		    fi
 		    shift 2
@@ -204,7 +204,7 @@ while true; do
 		    pass=2
 		    shift 2;;
 		*)
-		    echo "Invalid pass option -p [1|2]. Abording..."
+		    echo "Invalid pass option -p [1|2]. Aborting..."
 		    shift 2;;
 	    esac;;
 	-q|--quiet) # silence ffmpeg
@@ -233,7 +233,7 @@ while true; do
 			    echo "Window capture set to 'rectangle'..."
 			fi
 		    else
-			echo "Invalid capture option -w. Abording..."
+			echo "Invalid capture option -w. Aborting..."
 			exit 1
 		    fi
 		    shift 2;;
