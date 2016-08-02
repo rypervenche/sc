@@ -438,7 +438,7 @@ set_audio_variables() {
     elif [[ "$container" == "mp4" ]]; then
             audio_options="-c:a libfaac -b:a $audio_bitrate -ac $AC"
     # For mkv
-    elif [[ "$container" == "mkv" ]]: then
+    elif [[ "$container" == "mkv" ]]; then
             audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
     fi
     else
