@@ -473,6 +473,7 @@ set_window_variables() {
         # Fullscreen mode
         available_video_outputs=$(xrandr | egrep "current| connected" | sed -r -e 's|(\w+) connected ([0-9+x]+).*|\1 \2|' -e 's|.*current ([0-9]+) x ([0-9]+).*|ALL \1x\2+0+0|')
         echo "Choose a monitor. "
+        echo "$available_video_outputs"
         read video_output_choice
         WIN_GEO=$(grep -i "$video_output_choice" <<<"$available_video_outputs" | awk '{ print $2 }' | awk -F\+ '{ print $1 }')
         WIN_POS=$(grep -i "$video_output_choice" <<<"$available_video_outputs" | awk '{ print $2 }' | awk -F\+ '{ print $2 "," $3 }')
