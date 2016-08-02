@@ -182,7 +182,7 @@ while true; do
     -f|--format) # Encoding type
         case "$2" in
         *)
-            if [[ $2 == [kKmMwWgG]* ]]; then
+            if [[ $2 == [kKmMwWgG]* ]] || [[ $2 == "" ]]; then
             container=$2
             else
             echo "Invalid container option -f <k|m|w|g>. Aborting..."
@@ -335,7 +335,7 @@ set_container_type() {
             container=$i
             fi
         done
-    elif [[ "$container" == "k" ]]; then
+    elif [[ "$container" == "k" ]] || [[ "$container" == "" ]]; then
         container="mkv"
     elif [[ "$container" == "m" ]]; then
         container="mp4"
@@ -521,12 +521,12 @@ countdown() {
     ## Sets the countdown
 
     # Stores the countdown value, only if not in repeat mode
-    if [[ "$repeat" != true ]]; then
+    if [[ "$repeat" != "true" ]]; then
         echo "Countdown: $countdown" >> $memo_file
     fi
 
     # If no countdown, exit function
-    if [ $countdown = false ]; then
+    if [ "$countdown" = "false" ]; then
         return
     fi
     # Require key press to continue
@@ -543,7 +543,7 @@ countdown() {
     sleep 1
     printf "2 "
     sleep 1
-    printf "1 \033[0m"
+    printf "1 ${NC}"
     sleep 1
 }
 
