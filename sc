@@ -311,6 +311,7 @@ set_encoding_type() {
 	read encoding
     fi
 
+    # If choice is a number, change it to real name
     if [[ "$encoding" == [1-9] ]]; then
 	counter=0
 	for i in "${containers[@]}"
