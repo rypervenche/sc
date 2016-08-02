@@ -128,7 +128,7 @@ Usage: screencast [-a <I|B|H|N>] [-c] [-f <k|m|w|g>] [--new-config] [-n] [--outp
   -q --quiet: Quiet - silence ffmpeg
   --raw: Keep raw lossless file
   -r --repeat: Repeat last command
-  -w --window: Window to record - [F]rame, [R]ectangle
+  -w --window: Window to record - [f]rame, [F]ullscreen, [r]ectangle
 
 EOF
 
@@ -246,12 +246,14 @@ while true; do
     -w|--window) # Window capture
         case "$2" in
         *)
-            if [[ $2 == [FfRr]* ]]; then
+            if [[ $2 == [fFr]* ]]; then
             screen_selection=$2
-            if [[ $2 == [Ff]* ]]; then
+            if [[ $2 == [f]* ]]; then
                 echo "Window capture set to 'frame'..."
-            else
+            elif [[ $2 == [r]* ]]; then
                 echo "Window capture set to 'rectangle'..."
+            else
+                echo "Window capture set to 'fullscreen'..."
             fi
             else
             echo "Invalid capture option -w. Aborting..."
@@ -452,13 +454,13 @@ set_window_variables() {
     fi
 
     # Rectangle mode
-    if [[ $screen_selection == [2Rr]* ]]; then
+    if [[ $screen_selection == [2r]* ]]; then
         clear
         echo "Draw the rectange you want to record"
         rectangle=$(xrectsel)
         WIN_GEO=$(echo $rectangle | cut -d\+ -f1)
         WIN_POS=$(echo $rectangle | cut -d\+ -f2,3 | tr "+" ",")
-    else
+    elif [[ $screen_selection == [1f]* ]]; then
         # Frame mode
         clear
         read -n 1 -p "Press any key then click on the window you wish to record"
@@ -467,6 +469,13 @@ set_window_variables() {
         # Put information into variables
         WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
         WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
+    else
+        # Fullscreen mode
+        available_video_outputs=$(xrandr | egrep "current| connected" | sed -r -e 's|(\w+) connected ([0-9+x]+).*|\1 \2|' -e 's|.*current ([0-9]+) x ([0-9]+).*|ALL \1x\2+0+0|')
+        echo "Choose a monitor. "
+        read video_output_choice
+        WIN_GEO=$(grep -i "$video_output_choice" <<<"$available_video_outputs" | awk '{ print $2 }' | awk -F\+ '{ print $1 }')
+        WIN_POS=$(grep -i "$video_output_choice" <<<"$available_video_outputs" | awk '{ print $2 }' | awk -F\+ '{ print $2 "," $3 }')
     fi
     first=$(echo "$WIN_GEO" | cut -d \x -f1)
     second=$(echo "$WIN_GEO" | cut -d \x -f2)
