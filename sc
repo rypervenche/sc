@@ -38,7 +38,7 @@ set_default_variables(){
     memo_file="$output_destination/lastCommand.txt"
     default_encoding=webm
     default_audio=n
-    default_filename=default_name
+    default_filename="sc_video"
     default_encode=y
     default_pass=1
     default_window=frame
