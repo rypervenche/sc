@@ -50,7 +50,7 @@ set_default_variables
 # Static variables
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 containers=( webm mkv mp4 gif )
-dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
+dependencies=( ffmpeg xwininfo xrectsel )
 gif_palette="palette.png"
 
 
@@ -290,6 +290,7 @@ check_for_dependencies() {
         type -P "$i" &> /dev/null
         if [[ $? != 0 ]]; then
             echo "You need to install ${dependencies[i]}. Closing program now..."
+            exit 1
         fi
     done
     clear
