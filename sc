@@ -52,6 +52,7 @@ temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
 possible_containers=( mkv mp4 webm gif )
 dependencies=( ffmpeg xwininfo xrectsel )
 gif_palette="palette.png"
+possible_screens=( frame rectangle fullscreen )
 
 
 create_config(){
@@ -456,29 +457,40 @@ set_window_variables() {
 
     # If window variable not already set, ask it
     if [ -z ${screen_selection+x} ]; then
-        echo "Would you like to record a frame or a custom rectangle? [frame]"
-        echo "1) Frame"
-        echo "2) Rectangle"
+	# Print screens possibilities
+        counter=0
+        echo "What screen do you want to record? [$default_window]"
+        for i in "${possible_screens[@]}"
+        do
+            counter=$((counter+1))
+            echo "$counter. $i"
+        done
         read screen_selection
     fi
 
+        # If choice is a number, change it to real name
+    if [[ "$screen_selection" == [1-9] ]]; then
+        counter=0
+        for i in "${possible_screens[@]}"
+        do
+            counter=$((counter+1))
+            if [[ $screen_selection == $counter ]]; then
+            screen_selection=$i
+            fi
+        done
+    fi
+
+    echo $screen_selection
+
+
     # Rectangle mode
-    if [[ $screen_selection == [2r]* ]]; then
+    if [[ $screen_selection == [r]* ]]; then
         clear
         echo "Draw the rectange you want to record"
         rectangle=$(xrectsel)
         WIN_GEO=$(echo $rectangle | cut -d\+ -f1)
         WIN_POS=$(echo $rectangle | cut -d\+ -f2,3 | tr "+" ",")
-    elif [[ $screen_selection == [1f]* ]]; then
-        # Frame mode
-        clear
-        read -n 1 -p "Press any key then click on the window you wish to record"
-        INFO=$(xwininfo -frame)
-    
-        # Put information into variables
-        WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
-        WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
-    else
+    elif [[ $screen_selection == "fullscreen" ]] || [[ $screen_selection == [F]* ]]; then
         # Fullscreen mode
         clear
         available_video_outputs=$(xrandr | egrep "current| connected" | sed -r -e 's|(\w+) connected ([0-9+x]+).*|\1 \2|' -e 's|.*current ([0-9]+) x ([0-9]+).*|ALL \1x\2+0+0|')
@@ -491,6 +503,18 @@ set_window_variables() {
 
         WIN_GEO=$(grep -i "^$video_output_choice" <<<"$available_video_outputs" | awk '{ print $2 }' | awk -F\+ '{ print $1 }')
         WIN_POS=$(grep -i "^$video_output_choice" <<<"$available_video_outputs" | awk '{ print $2 }' | awk -F\+ '{ print $2 "," $3 }')
+    elif [[ $screen_selection == [f]* ]]; then
+        # Frame mode
+        clear
+        read -n 1 -p "Press any key then click on the window you wish to record"
+        INFO=$(xwininfo -frame)
+
+        # Put information into variables
+        WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
+        WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
+    else
+	echo "Error, invalid choice. Aborting..."
+	exit 1
     fi
     first=$(echo "$WIN_GEO" | cut -d \x -f1)
     second=$(echo "$WIN_GEO" | cut -d \x -f2)
