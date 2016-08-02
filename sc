@@ -599,7 +599,7 @@ set_encoding_variables() {
         video_options="-c:v libx264 -preset $preset -threads 0"
           crf_options="-crf $crf"
     else
-	echo "Error, container $container not supported. Abording..."
+	echo "Error, container $container not supported. Aborting..."
 	exit 1
     fi
     # Store extention into memo file
