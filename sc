@@ -480,12 +480,17 @@ set_window_variables() {
         WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
     else
         # Fullscreen mode
+        clear
         available_video_outputs=$(xrandr | egrep "current| connected" | sed -r -e 's|(\w+) connected ([0-9+x]+).*|\1 \2|' -e 's|.*current ([0-9]+) x ([0-9]+).*|ALL \1x\2+0+0|')
-        echo "Choose a monitor. "
+        echo "Choose a monitor. [ALL|(beginning of one you want)"
         echo "$available_video_outputs"
         read video_output_choice
-        WIN_GEO=$(grep -i "$video_output_choice" <<<"$available_video_outputs" | awk '{ print $2 }' | awk -F\+ '{ print $1 }')
-        WIN_POS=$(grep -i "$video_output_choice" <<<"$available_video_outputs" | awk '{ print $2 }' | awk -F\+ '{ print $2 "," $3 }')
+        if [[ "$video_output_choice" == "" ]]; then
+            video_output_choice="all"
+        fi
+
+        WIN_GEO=$(grep -i "^$video_output_choice" <<<"$available_video_outputs" | awk '{ print $2 }' | awk -F\+ '{ print $1 }')
+        WIN_POS=$(grep -i "^$video_output_choice" <<<"$available_video_outputs" | awk '{ print $2 }' | awk -F\+ '{ print $2 "," $3 }')
     fi
     first=$(echo "$WIN_GEO" | cut -d \x -f1)
     second=$(echo "$WIN_GEO" | cut -d \x -f2)
