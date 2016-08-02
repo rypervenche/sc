@@ -24,26 +24,26 @@ BOLD='\e[1m'
 
 # Config variables
 set_default_variables(){
-pulseaudio="true" # Change to "true" if you use Pulse
-frame_rate="30"
-video_bitrate="512k" # For two pass
-webm_video_bitrate="256k" # For webm
-audio_bitrate="160k" # in kilobytes
-audio_freq="44100"
-crf="25" # For one pass. The higher, the smaller but the crappier
-webm_crf="8" # For one pass
-preset_lossless="faster" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
-preset="faster" # for encoding
-output_destination="${HOME}"
-memo_file="$output_destination/lastCommand.txt"
-default_encoding=webm
-default_audio=n
-default_filename=default_name
-default_encode=y
-default_pass=1
-default_window=frame
-default_raw=n
-default_countdown=n
+    pulseaudio="true" # Change to "true" if you use Pulse
+    frame_rate="30"
+    video_bitrate="512k" # For two pass
+    webm_video_bitrate="256k" # For webm
+    audio_bitrate="160k" # in kilobytes
+    audio_freq="44100"
+    crf="25" # For one pass. The higher, the smaller but the crappier
+    webm_crf="8" # For one pass
+    preset_lossless="faster" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
+    preset="faster" # for encoding
+    output_destination="${HOME}"
+    memo_file="$output_destination/lastCommand.txt"
+    default_encoding=webm
+    default_audio=n
+    default_filename=default_name
+    default_encode=y
+    default_pass=1
+    default_window=frame
+    default_raw=n
+    default_countdown=n
 }
 set_default_variables
 
@@ -55,8 +55,9 @@ gif_palette="palette.png"
 
 
 create_config(){
-set_default_variables
-echo "# sc configuration file v2.0
+    set_default_variables
+    cat << EOF >␣$HOME/.sc_config
+# sc configuration file v2.0
 
 pulseaudio=\"$pulseaudio\"
 frame_rate=\"$frame_rate\"
@@ -101,9 +102,10 @@ default_window=$default_window
 default_raw=$default_raw
 
 # Set default countdown setting [true|false]
-default_countdown=$default_countdown" > $HOME/.sc_config
+default_countdown=$default_countdown
+EOF
 
-echo "$HOME/.sc_config created"
+    echo "$HOME/.sc_config created"
 }
 
 # Load an optional config file
@@ -115,19 +117,24 @@ source $HOME/.sc_config
 
 usage(){
     ## Print usage of the script and exit
-    printf "Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [--new-config] [-n] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
- \t-a --audio: Set audio input - [I]nternal, [B]uilt-in, [H]eadset, [N]o audio
- \t-c --countdown: Remove countdown
- \t-d --default: Use default options ($default_encoding, audio=$default_audio, $default_window, filename=$default_filename)
- \t-e --encoding: Set encoding type - [x]264, [m]p4, [w]ebm, [g]if
- \t-f --filename: Set video filename
- \t--new-config: Create a new .sc_config file
- \t-n --now: Encode without asking
- \t-p --pass: Set number of passes (1/2)
- \t-q --quiet: Quiet - silence ffmpeg
- \t--raw: Keep raw lossless file
- \t-r --repeat: Repeat last command
- \t-w --window: Window to record - [F]rame, [R]ectangle\n"
+    cat <<EOF
+
+Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [--new-config] [-n] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
+
+  -a --audio: Set audio input - [I]nternal, [B]uilt-in, [H]eadset, [N]o audio
+  -c --countdown: Remove countdown
+  -d --default: Use default options ($default_encoding, audio=$default_audio, $default_window, filename=$default_filename)
+  -e --encoding: Set encoding type - [x]264, [m]p4, [w]ebm, [g]if
+  -f --filename: Set video filename
+  --new-config: Create a new .sc_config file
+  -n --now: Encode without asking
+  -p --pass: Set number of passes (1/2)
+  -q --quiet: Quiet - silence ffmpeg
+  --raw: Keep raw lossless file
+  -r --repeat: Repeat last command
+  -w --window: Window to record - [F]rame, [R]ectangle\n"
+
+EOF
 
     exit 0
 }
@@ -154,7 +161,8 @@ while true; do
         screen_selection=$default_window
         countdown=$default_countdown
         raw=$default_raw
-        shift;;
+        shift
+        ;;
     -a|--audio) # Audio options
         case "$2" in
         *)
@@ -169,7 +177,8 @@ while true; do
              fi
             echo OK
             shift 2
-        esac;;
+        esac
+        ;;
     -c|--countdown)
         countdown=false
         shift
@@ -184,7 +193,8 @@ while true; do
             exit 1
             fi
             shift 2
-        esac;;
+        esac
+        ;;
     -f|--filename) # Filename
         case "$2" in
         *)
@@ -217,10 +227,12 @@ while true; do
         *)
             echo "Invalid pass option -p [1|2]. Aborting..."
             shift 2;;
-        esac;;
+        esac
+        ;;
     -q|--quiet) # silence ffmpeg
         quiet="-loglevel fatal"
-        shift;;
+        shift
+        ;;
     -r|--repeat)
         echo "Repeat mode activated..."
         file=$(grep Filename: $memo_file | cut -d: -f2-)
@@ -229,10 +241,12 @@ while true; do
         countdown=$(grep Countdown: $memo_file | cut -d' ' -f2-)
         encode=$(grep Encode: $memo_file | cut -d' ' -f2-)
         raw=$(grep Raw: $memo_file | cut -d' ' -f2-)
-        shift;;
+        shift
+        ;;
     --raw)
         raw=true
-        shift;;
+        shift
+        ;;
     -w|--window) # Window capture
         case "$2" in
         *)
@@ -248,7 +262,8 @@ while true; do
             exit 1
             fi
             shift 2;;
-        esac;;
+        esac
+        ;;
     --)
         shift
         break
@@ -295,41 +310,41 @@ set_encoding_type() {
 
     # If 'repeat' mode on, skip function
     if [[ $repeat == true ]]; then
-    return
+        return
     fi
 
     # If encoding is not yet set, set it
     if [ -z ${encoding+x} ]; then
-	# Print container possibilities
-	counter=0
-	echo "What container do you want to use? [$default_encoding]"
-	for i in "${containers[@]}"
-	do
-	    counter=$((counter+1))
-	    echo "$counter. $i"
-	done
-	read encoding
+        # Print container possibilities
+        counter=0
+        echo "What container do you want to use? [$default_encoding]"
+        for i in "${containers[@]}"
+        do
+            counter=$((counter+1))
+            echo "$counter. $i"
+        done
+        read encoding
     fi
 
     # If choice is a number, change it to real name
     if [[ "$encoding" == [1-9] ]]; then
-	counter=0
-	for i in "${containers[@]}"
-	do
-	    counter=$((counter+1))
-	    if [[ $encoding == $counter ]]; then
-		encoding=$i
-	    fi
-	done
+        counter=0
+        for i in "${containers[@]}"
+        do
+            counter=$((counter+1))
+            if [[ $encoding == $counter ]]; then
+            encoding=$i
+            fi
+        done
     fi
 
     # For gif only
     if [[ "$encoding" == [Gg]* ]]; then
-	echo "Which size for the gif, sir? [320]"
-	read scale
-	if [ -z "$scale" ]; then
-	    scale=320
-	fi
+        echo "Which size for the gif, sir? [320]"
+        read scale
+        if [ -z "$scale" ]; then
+            scale=320
+        fi
     fi
 }
 
@@ -338,18 +353,18 @@ set_audio_variables() {
 
     # If 'repeat' mode on, skip function
     if [[ $repeat == true ]]; then
-    return
+        return
     fi
 
     # If gif is created, skip function
     if [[ "$encoding" == [Gg]* ]]; then
-    return
+        return
     fi
 
     # If audio not already set, ask it
     if [ -z ${audioQ+x} ]; then
-    echo "Would you like audio? y/N [N]"
-    read audioQ
+        echo "Would you like audio? y/N [N]"
+        read audioQ
     fi
 
     # Choose audio input
@@ -419,7 +434,7 @@ set_audio_variables() {
             audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
     fi
     else
-    audio_options="-an"
+        audio_options="-an"
     fi
 }
 
@@ -428,42 +443,42 @@ set_window_variables() {
 
     # If 'repeat' mode on, exit function
     if [[ $repeat == true ]]; then
-    return
+        return
     fi
 
     # If window variable not already set, ask it
     if [ -z ${screen_selection+x} ]; then
-    echo "Would you like to record a frame or a custom rectangle? [frame]"
-    echo "1) Frame"
-    echo "2) Rectangle"
-    read screen_selection
+        echo "Would you like to record a frame or a custom rectangle? [frame]"
+        echo "1) Frame"
+        echo "2) Rectangle"
+        read screen_selection
     fi
 
     # Rectangle mode
     if [[ $screen_selection == [2Rr]* ]]; then
-    clear
-    echo "Draw the rectange you want to record"
-    rectangle=$(xrectsel)
-    WIN_GEO=$(echo $rectangle | cut -d\+ -f1)
-    WIN_POS=$(echo $rectangle | cut -d\+ -f2,3 | tr "+" ",")
+        clear
+        echo "Draw the rectange you want to record"
+        rectangle=$(xrectsel)
+        WIN_GEO=$(echo $rectangle | cut -d\+ -f1)
+        WIN_POS=$(echo $rectangle | cut -d\+ -f2,3 | tr "+" ",")
     else
-    # Frame mode
-    clear
-    read -n 1 -p "Press any key then click on the window you wish to record"
-    INFO=$(xwininfo -frame)
-
-    # Put information into variables
-    WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
-    WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
+        # Frame mode
+        clear
+        read -n 1 -p "Press any key then click on the window you wish to record"
+        INFO=$(xwininfo -frame)
+    
+        # Put information into variables
+        WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
+        WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
     fi
     first=$(echo "$WIN_GEO" | cut -d \x -f1)
     second=$(echo "$WIN_GEO" | cut -d \x -f2)
     if (($first%2!=0)) || (($second%2!=0)); then
         if (($first%2!=0)); then
-        first=$(($first-1))
+            first=$(($first-1))
         fi
         if (($second%2!=0)); then
-        second=$(($second-1))
+            second=$(($second-1))
         fi
         WIN_GEO="$first"x"$second"
     fi
@@ -474,7 +489,7 @@ set_extension_variable() {
 
     # If 'repeat' mode on, get filename from memo file
     if [[ "$repeat" == true ]]; then
-    return
+        return
     fi
     # If filename not already set, ask it
     if [ -z ${file+x} ]; then
@@ -491,12 +506,12 @@ countdown() {
 
     # Stores the countdown value, only if not in repeat mode
     if [[ "$repeat" != true ]]; then
-    echo "Countdown: $countdown" >> $memo_file
+        echo "Countdown: $countdown" >> $memo_file
     fi
 
     # If no countdown, exit function
     if [ $countdown = false ]; then
-    return
+        return
     fi
     # Require key press to continue
     clear
@@ -521,17 +536,17 @@ record_lossless() {
 
     # If 'repeat' mode is on, get command from memo file
     if [[ "$repeat" == true ]]; then
-    record_lossless_command=$(grep Lossless: $memo_file | cut -d: -f2-)
+        record_lossless_command=$(grep Lossless: $memo_file | cut -d: -f2-)
     # With audio
     elif [[ $audioQ == [yY]* ]]; then
-    record_lossless_command="ffmpeg $quiet -thread_queue_size 512 -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
+        record_lossless_command="ffmpeg $quiet -thread_queue_size 512 -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
     # Without audio
     else
-    record_lossless_command="ffmpeg $quiet -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
+        record_lossless_command="ffmpeg $quiet -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
     fi
     # Store command into memo file, except if in repeat mode
     if [[ "$repeat" != true ]]; then
-    echo "Lossless: $record_lossless_command" >> $memo_file
+        echo "Lossless: $record_lossless_command" >> $memo_file
     fi
     echo "Recording!"
     # Start recording
@@ -543,9 +558,9 @@ ask_to_encode() {
 
     # If 'encode' variable is not yet set
     if [ -z ${encode+x} ]; then
-    echo "Would you like to encode the video now? Y/n"
-    read encode
-    echo "Encode: $encode" >> $memo_file
+        echo "Would you like to encode the video now? Y/n"
+        read encode
+        echo "Encode: $encode" >> $memo_file
     fi
 
     # If set to no, simply move the raw file and quit
@@ -561,34 +576,34 @@ set_encoding_variables() {
 
     # In 'repeat' mode, this function is skipped
     if [[ $repeat == true ]]; then
-    return
+        return
     fi
 
     ## CHOOSING ENCODING TYPE
     # For gif
     if [[ "$encoding" == [Gg]* ]]; then
-    video_options="fps=$frame_rate,scale=$scale:-1:flags=lanczos"
-    ext="gif"
-    crf_options=""
-    echo "Extension: $ext" >> $memo_file
-    return
+        video_options="fps=$frame_rate,scale=$scale:-1:flags=lanczos"
+        ext="gif"
+        crf_options=""
+        echo "Extension: $ext" >> $memo_file
+        return
     fi
     # If 'pass' variable is not yet set
     if [ -z ${pass+x} ]; then
-    clear
-    echo "Choose encoding type:"
-    echo ""
-    echo "1) Single pass"
-    echo "2) Two pass"
-    echo ""
-    echo "Enter single digit (Default: 1)"
-    read pass
+        clear
+        echo "Choose encoding type:"
+        echo ""
+        echo "1) Single pass"
+        echo "2) Two pass"
+        echo ""
+        echo "Enter single digit (Default: 1)"
+        read pass
     fi
     # For webm
     if [[ "$encoding" == webm ]]; then
         ext="webm"
         video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
-          crf_options="-crf $webm_crf"
+        crf_options="-crf $webm_crf"
     # For mp4
     elif [[ "$encoding" == mp4 ]]; then
         ext="mp4"
@@ -598,10 +613,10 @@ set_encoding_variables() {
     # For mkv
         ext="mkv"
         video_options="-c:v libx264 -preset $preset -threads 0"
-          crf_options="-crf $crf"
+        crf_options="-crf $crf"
     else
-	echo "Error, container $container not supported. Aborting..."
-	exit 1
+        echo "Error, container $container not supported. Aborting..."
+        exit 1
     fi
     # Store extention into memo file
     echo "Extension: $ext" >> $memo_file
@@ -610,16 +625,16 @@ set_encoding_variables() {
 encode_video() {
     # If repeat option active, get the stored command and run it
     if [[ $repeat == true ]]; then
-    encode_command=$(grep Encoding: $memo_file | cut -d: -f2-)
-#    echo $encode_command
-    eval "$encode_command"
-    return
+        encode_command=$(grep Encoding: $memo_file | cut -d: -f2-)
+#       echo $encode_command
+        eval "$encode_command"
+        return
     fi
 
     ## SETTING ENCODE COMMAND
     # If creating gif
     if [[ "$encoding" == [Gg]* ]]; then
-    encode_command="ffmpeg $quiet -v warning -i lossless.mkv -vf \"$video_options,palettegen\" -y $gif_palette && ffmpeg $quiet -v warning -i lossless.mkv -i $gif_palette -lavfi \"$video_options [x]; [x][1:v] paletteuse\" -y $file.$ext"
+        encode_command="ffmpeg $quiet -v warning -i lossless.mkv -vf \"$video_options,palettegen\" -y $gif_palette && ffmpeg $quiet -v warning -i lossless.mkv -i $gif_palette -lavfi \"$video_options [x]; [x][1:v] paletteuse\" -y $file.$ext"
     # If creating 2 passes video
     elif [[ $pass == 2 ]]; then
         video_options="$video_options -b:v $video_bitrate"
@@ -629,8 +644,8 @@ encode_video() {
             encode_command="ffmpeg $quiet -i lossless.mkv -pass 1 $video_options -f rawvideo -an -y /dev/null &&  ffmpeg $quiet -i lossless.mkv -pass 2 -an $video_options $file.$ext"
         fi
     else
-    # Standard command
-    encode_command="ffmpeg $quiet -i lossless.mkv $audio_options $video_options $crf_options $file.$ext"
+        # Standard command
+        encode_command="ffmpeg $quiet -i lossless.mkv $audio_options $video_options $crf_options $file.$ext"
     fi
     # Running encode command
     eval $encode_command
@@ -642,9 +657,9 @@ cleanup() {
     # Remove unnecessary files and folders and exit
     mv $file.$ext $output_destination/
     if [ -z ${raw+x} ]; then
-    echo "Would you like to keep the raw video? y/N"
-    read raw
-    echo "Raw: $raw" >> $memo_file
+        echo "Would you like to keep the raw video? y/N"
+        read raw
+        echo "Raw: $raw" >> $memo_file
     fi
 
     if [[ $raw == [yY]* ]]; then
