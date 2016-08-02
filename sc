@@ -36,7 +36,7 @@ set_default_variables(){
     preset="faster" # for encoding
     output_destination="${HOME}"
     memo_file="$output_destination/lastCommand.txt"
-    default_encoding=webm
+    default_container=webm
     default_audio=n
     default_filename="sc_video"
     default_encode=y
@@ -49,7 +49,7 @@ set_default_variables
 
 # Static variables
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
-containers=( webm mkv mp4 gif )
+possible_containers=( mkv mp4 webm gif )
 dependencies=( ffmpeg xwininfo xrectsel )
 gif_palette="palette.png"
 
@@ -76,8 +76,8 @@ output_destination="$output_destination"
 # File storing last command (in output_destination)
 memo_file=$memo_file
 
-# Set default output format [x264|mp4|webm|gif]
-default_encoding=$default_encoding
+# Set default output format [mkv|mp4|webm|gif]
+default_container=$default_container
 
 # Set audio preferences [y|n]
 default_audio=$default_audio
@@ -115,15 +115,15 @@ usage(){
     ## Print usage of the script and exit
     cat <<EOF
 
-Usage: screencast [-a <I|B|H|N>] [-c] [-e <x|m|w|g>] [--filename=<filename>] [--new-config] [-n] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
+Usage: screencast [-a <I|B|H|N>] [-c] [-f <k|m|w|g>] [--new-config] [-n] [--output=<filename>] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
 
   -a --audio: Set audio input - [I]nternal, [B]uilt-in, [H]eadset, [N]o audio
   -c --countdown: Remove countdown
-  -d --default: Use default options ($default_encoding, audio=$default_audio, $default_window, filename=$default_filename)
-  -e --encoding: Set encoding type - [x]264, [m]p4, [w]ebm, [g]if
-  -f --filename: Set video filename
+  -d --default: Use default options ($default_container, audio=$default_audio, $default_window, filename=$default_filename)
+  -f --format: Set container format - m[k]v, [m]p4, [w]ebm, [g]if
   --new-config: Create a new .sc_config file
   -n --now: Encode without asking
+  -o --output: Set video output filename
   -p --pass: Set number of passes (1/2)
   -q --quiet: Quiet - silence ffmpeg
   --raw: Keep raw lossless file
@@ -135,7 +135,7 @@ EOF
     exit 0
 }
 
-script_options=$(getopt -o a:cde:f:hnp::qrw: --long audio:,countdown,default,encoding:,filename:,help,new-config,now,pass::,quiet,raw,repeat,window: -- "$@")
+script_options=$(getopt -o a:cdf:hno:p::qrw: --long audio:,countdown,default,format:,help,new-config,now,output:,pass::,quiet,raw,repeat,window: -- "$@")
 
 # If foreign option entered, exit
 [ $? -eq 0 ] || {
@@ -149,7 +149,7 @@ while true; do
     case "$1" in
     -d|--default)
         audioQ=$default_audio
-        encoding=$default_encoding
+        container=$default_container
         file=$default_filename
         echo "Filename: $default_filename" > $memo_file
         encode=$default_encode
@@ -179,25 +179,18 @@ while true; do
         countdown=false
         shift
         ;;
-    -e|--encoding) # Encoding type
+    -f|--format) # Encoding type
         case "$2" in
         *)
             if [[ $2 == [WwXxGgMm]* ]]; then
-            encoding=$2
+            container=$2
             else
-            echo "Invalid encoding option -e <w|x|g|m>. Aborting..."
+            echo "Invalid container option -e <w|x|g|m>. Aborting..."
             exit 1
             fi
             shift 2
         esac
         ;;
-    -f|--filename) # Filename
-        case "$2" in
-        *)
-            echo "Filename: $2" > $memo_file
-            file=$2
-            shift 2
-        esac;;
     -h|--help) # Help
         usage
         ;;
@@ -209,6 +202,13 @@ while true; do
         encode=y
         shift
         ;;
+    -o|--output) # Filename
+        case "$2" in
+        *)
+            echo "Filename: $2" > $memo_file
+            file=$2
+            shift 2
+        esac;;
     -p|--pass) # number of passes
         case "$2" in
         "")
@@ -302,41 +302,41 @@ move_pwd() {
     cd $temp_dir
 }
 
-set_encoding_type() {
-    ## Set the type of video encoding
+set_container_type() {
+    ## Set the type of video container
 
     # If 'repeat' mode on, skip function
     if [[ $repeat == true ]]; then
         return
     fi
 
-    # If encoding is not yet set, set it
-    if [ -z ${encoding+x} ]; then
+    # If container is not yet set, set it
+    if [ -z ${container+x} ]; then
         # Print container possibilities
         counter=0
-        echo "What container do you want to use? [$default_encoding]"
-        for i in "${containers[@]}"
+        echo "What container do you want to use? [$default_container]"
+        for i in "${possible_containers[@]}"
         do
             counter=$((counter+1))
             echo "$counter. $i"
         done
-        read encoding
+        read container
     fi
 
     # If choice is a number, change it to real name
-    if [[ "$encoding" == [1-9] ]]; then
+    if [[ "$container" == [1-9] ]]; then
         counter=0
-        for i in "${containers[@]}"
+        for i in "${possible_containers[@]}"
         do
             counter=$((counter+1))
-            if [[ $encoding == $counter ]]; then
-            encoding=$i
+            if [[ $container == $counter ]]; then
+            container=$i
             fi
         done
     fi
 
     # For gif only
-    if [[ "$encoding" == [Gg]* ]]; then
+    if [[ "$container" == [Gg]* ]]; then
         echo "Which size for the gif, sir? [320]"
         read scale
         if [ -z "$scale" ]; then
@@ -354,7 +354,7 @@ set_audio_variables() {
     fi
 
     # If gif is created, skip function
-    if [[ "$encoding" == [Gg]* ]]; then
+    if [[ "$container" == [Gg]* ]]; then
         return
     fi
 
@@ -421,10 +421,10 @@ set_audio_variables() {
             exit 1
         fi
 
-    if [[ "$encoding" == [Ww]* ]]; then
+    if [[ "$container" == [Ww]* ]]; then
             audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
         # For mp4
-    elif [[ "$encoding" == [Mm]* ]]; then
+    elif [[ "$container" == [Mm]* ]]; then
             audio_options="-c:a libfaac -b:a $audio_bitrate -ac $AC"
     else
         # For mkv
@@ -578,7 +578,7 @@ set_encoding_variables() {
 
     ## CHOOSING ENCODING TYPE
     # For gif
-    if [[ "$encoding" == [Gg]* ]]; then
+    if [[ "$container" == [Gg]* ]]; then
         video_options="fps=$frame_rate,scale=$scale:-1:flags=lanczos"
         ext="gif"
         crf_options=""
@@ -597,16 +597,16 @@ set_encoding_variables() {
         read pass
     fi
     # For webm
-    if [[ "$encoding" == webm ]]; then
+    if [[ "$container" == webm ]]; then
         ext="webm"
         video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
         crf_options="-crf $webm_crf"
     # For mp4
-    elif [[ "$encoding" == mp4 ]]; then
+    elif [[ "$container" == mp4 ]]; then
         ext="mp4"
         video_options="-c:v libx264 -preset $preset -threads 0"
         crf_options="-crf $crf"
-    elif [[ "$encoding" == mkv ]]; then
+    elif [[ "$container" == mkv ]]; then
     # For mkv
         ext="mkv"
         video_options="-c:v libx264 -preset $preset -threads 0"
@@ -630,7 +630,7 @@ encode_video() {
 
     ## SETTING ENCODE COMMAND
     # If creating gif
-    if [[ "$encoding" == [Gg]* ]]; then
+    if [[ "$container" == [Gg]* ]]; then
         encode_command="ffmpeg $quiet -v warning -i lossless.mkv -vf \"$video_options,palettegen\" -y $gif_palette && ffmpeg $quiet -v warning -i lossless.mkv -i $gif_palette -lavfi \"$video_options [x]; [x][1:v] paletteuse\" -y $file.$ext"
     # If creating 2 passes video
     elif [[ $pass == 2 ]]; then
@@ -678,7 +678,7 @@ check_for_dependencies
 
 move_pwd
 
-set_encoding_type
+set_container_type
 
 set_audio_variables
 
