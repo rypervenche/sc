@@ -59,23 +59,19 @@ create_config(){
     cat <<EOF >$HOME/.sc_config
 # sc configuration file v2.0
 
-pulseaudio=\"$pulseaudio\"
-frame_rate=\"$frame_rate\"
-video_bitrate=\"$video_bitrate\" # For two pass
-webm_video_bitrate=\"$webm_video_bitrate\" # For webm
-audio_bitrate=\"$audio_bitrate\" # in kilobytes
-audio_freq=\"$audio_freq\"
-crf=\"$crf\" # For one pass. The higher, the smaller but the crappier
-webm_crf=\"$webm_crf\" # For one pass
-preset_lossless=\"$preset_lossless\" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
-preset=\"$preset\" # for encoding
-
-dependencies=( ${dependencies[@]} )
-gif_palette=\"$gif_palette\"
-
+pulseaudio="$pulseaudio"
+frame_rate="$frame_rate"
+video_bitrate="$video_bitrate" # For two pass
+webm_video_bitrate="$webm_video_bitrate" # For webm
+audio_bitrate="$audio_bitrate" # in kilobytes
+audio_freq="$audio_freq"
+crf="$crf" # For one pass. The higher, the smaller but the crappier
+webm_crf="$webm_crf" # For one pass
+preset_lossless="$preset_lossless" # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
+preset="$preset" # for encoding
 
 # Set the output destination
-output_destination=\"$output_destination\"
+output_destination="$output_destination"
 
 # File storing last command (in output_destination)
 memo_file=$memo_file
