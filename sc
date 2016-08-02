@@ -128,7 +128,7 @@ Usage: screencast [-a <I|B|H|N>] [-c] [-f <k|m|w|g>] [--new-config] [-n] [--outp
   -q --quiet: Quiet - silence ffmpeg
   --raw: Keep raw lossless file
   -r --repeat: Repeat last command
-  -w --window: Window to record - [F]rame, [R]ectangle\n"
+  -w --window: Window to record - [F]rame, [R]ectangle
 
 EOF
 
