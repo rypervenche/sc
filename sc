@@ -49,7 +49,7 @@ set_default_variables
 
 # Static variables
 temp_dir="$(mktemp -d -t ffmpeg.XXXXX)"
-containers=( webm mkv mp4 )
+containers=( webm mkv mp4 gif )
 dependencies=( x264 ffmpeg libvorbis libvpx xwininfo xrectsel )
 gif_palette="palette.png"
 
@@ -300,17 +300,35 @@ set_encoding_type() {
 
     # If encoding is not yet set, set it
     if [ -z ${encoding+x} ]; then
-    echo "Would you like x264, mp4, webm or gif encoding? [x264]"
-    read encoding
+	# Print container possibilities
+	counter=0
+	echo "What container do you want to use? [$default_encoding]"
+	for i in "${containers[@]}"
+	do
+	    counter=$((counter+1))
+	    echo "$counter. $i"
+	done
+	read encoding
+    fi
+
+    if [[ "$encoding" == [1-9] ]]; then
+	counter=0
+	for i in "${containers[@]}"
+	do
+	    counter=$((counter+1))
+	    if [[ $encoding == $counter ]]; then
+		encoding=$i
+	    fi
+	done
     fi
 
     # For gif only
     if [[ "$encoding" == [Gg]* ]]; then
-    echo "Which size for the gif, sir? [320]"
-    read scale
-    if [ -z "$scale" ]; then
-       scale=320
-    fi
+	echo "Which size for the gif, sir? [320]"
+	read scale
+	if [ -z "$scale" ]; then
+	    scale=320
+	fi
     fi
 }
 
@@ -566,20 +584,23 @@ set_encoding_variables() {
     read pass
     fi
     # For webm
-    if [[ "$encoding" == [Ww]* ]]; then
+    if [[ "$encoding" == webm ]]; then
         ext="webm"
         video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
           crf_options="-crf $webm_crf"
     # For mp4
-    elif [[ "$encoding" == [Mm]* ]]; then
+    elif [[ "$encoding" == mp4 ]]; then
         ext="mp4"
         video_options="-c:v libx264 -preset $preset -threads 0"
         crf_options="-crf $crf"
-    else
+    elif [[ "$encoding" == mkv ]]; then
     # For mkv
         ext="mkv"
         video_options="-c:v libx264 -preset $preset -threads 0"
           crf_options="-crf $crf"
+    else
+	echo "Error, container $container not supported. Abording..."
+	exit 1
     fi
     # Store extention into memo file
     echo "Extension: $ext" >> $memo_file
