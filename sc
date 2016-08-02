@@ -56,7 +56,7 @@ gif_palette="palette.png"
 
 create_config(){
     set_default_variables
-    cat << EOF >␣$HOME/.sc_config
+    cat <<EOF >$HOME/.sc_config
 # sc configuration file v2.0
 
 pulseaudio=\"$pulseaudio\"
