@@ -555,7 +555,7 @@ countdown() {
     fi
 
     # If no countdown, exit function
-    if [ "$countdown" = "false" ]; then
+    if [[ "$countdown" = "false" ]]; then
         return
     fi
     # Require key press to continue
