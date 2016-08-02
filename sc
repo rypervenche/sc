@@ -182,10 +182,10 @@ while true; do
     -f|--format) # Encoding type
         case "$2" in
         *)
-            if [[ $2 == [WwXxGgMm]* ]]; then
+            if [[ $2 == [kKmMwWgG]* ]]; then
             container=$2
             else
-            echo "Invalid container option -e <w|x|g|m>. Aborting..."
+            echo "Invalid container option -f <k|m|w|g>. Aborting..."
             exit 1
             fi
             shift 2
@@ -335,10 +335,18 @@ set_container_type() {
             container=$i
             fi
         done
+    elif [[ "$container" == "k" ]]; then
+        container="mkv"
+    elif [[ "$container" == "m" ]]; then
+        container="mp4"
+    elif [[ "$container" == "w" ]]; then
+        container="webm"
+    elif [[ "$container" == "g" ]]; then
+        container="gif"
     fi
 
     # For gif only
-    if [[ "$container" == [Gg]* ]]; then
+    if [[ "$container" == "gif" ]]; then
         echo "Which size for the gif, sir? [320]"
         read scale
         if [ -z "$scale" ]; then
@@ -356,7 +364,7 @@ set_audio_variables() {
     fi
 
     # If gif is created, skip function
-    if [[ "$container" == [Gg]* ]]; then
+    if [[ "$container" == "gif" ]]; then
         return
     fi
 
@@ -423,13 +431,14 @@ set_audio_variables() {
             exit 1
         fi
 
-    if [[ "$container" == [Ww]* ]]; then
+    # For webm
+    if [[ "$container" == "webm" ]]; then
             audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-        # For mp4
-    elif [[ "$container" == [Mm]* ]]; then
+    # For mp4
+    elif [[ "$container" == "mp4" ]]; then
             audio_options="-c:a libfaac -b:a $audio_bitrate -ac $AC"
-    else
-        # For mkv
+    # For mkv
+    elif [[ "$container" == "mkv" ]]: then
             audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
     fi
     else
@@ -588,7 +597,7 @@ set_encoding_variables() {
 
     ## CHOOSING ENCODING TYPE
     # For gif
-    if [[ "$container" == [Gg]* ]]; then
+    if [[ "$container" == "gif" ]]; then
         video_options="fps=$frame_rate,scale=$scale:-1:flags=lanczos"
         ext="gif"
         crf_options=""
@@ -640,7 +649,7 @@ encode_video() {
 
     ## SETTING ENCODE COMMAND
     # If creating gif
-    if [[ "$container" == [Gg]* ]]; then
+    if [[ "$container" == "gif" ]]; then
         encode_command="ffmpeg $quiet -v warning -i lossless.mkv -vf \"$video_options,palettegen\" -y $gif_palette && ffmpeg $quiet -v warning -i lossless.mkv -i $gif_palette -lavfi \"$video_options [x]; [x][1:v] paletteuse\" -y $file.$ext"
     # If creating 2 passes video
     elif [[ $pass == 2 ]]; then
