@@ -320,8 +320,13 @@ set_container_type() {
         echo "What container do you want to use? [$default_container]"
         for i in "${possible_containers[@]}"
         do
+	    if [[ $i == $default_container ]]; then
+		color=$BOLD
+	    else
+		color=""
+	    fi
             counter=$((counter+1))
-            echo "$counter. $i"
+            printf "${color}$counter. $i ${NC}\n"
         done
         read container
     fi
@@ -462,8 +467,13 @@ set_window_variables() {
         echo "What screen do you want to record? [$default_window]"
         for i in "${possible_screens[@]}"
         do
+	    if [[ $i == $default_window ]]; then
+		color=$BOLD
+	    else
+		color=""
+	    fi
             counter=$((counter+1))
-            echo "$counter. $i"
+            printf "${color}$counter. $i ${NC}\n"
         done
         read screen_selection
     fi
