@@ -171,7 +171,7 @@ while true; do
             else
                 echo "-a: available options [i]nternal|[b]uilt-in|[h]eadset|[n]o"
                 exit 1
-             fi
+            fi
             echo OK
             shift 2
         esac
