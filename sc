@@ -320,11 +320,11 @@ set_container_type() {
         echo "What container do you want to use? [$default_container]"
         for i in "${possible_containers[@]}"
         do
-	    if [[ $i == $default_container ]]; then
-		color="${BOLD}${YELLOW}"
-	    else
-		color=""
-	    fi
+            if [[ $i == $default_container ]]; then
+                color="${BOLD}${YELLOW}"
+            else
+                color=""
+            fi
             counter=$((counter+1))
             printf "${color}$counter. $i ${NC}\n"
         done
@@ -350,7 +350,7 @@ set_container_type() {
     elif [[ "$container" == "g" ]]; then
         container="gif"
     else
-	container=$default_container
+        container=$default_container
     fi
 
     # For gif only
@@ -465,16 +465,16 @@ get_window_choice() {
 
     # If window variable not already set, ask it
     if [ -z ${screen_selection+x} ]; then
-	# Print screens possibilities
+        # Print screens possibilities
         counter=0
         echo "What screen do you want to record? [$default_window]"
         for i in "${possible_screens[@]}"
         do
-	    if [[ $i == $default_window ]]; then
-		color="${BOLD}${YELLOW}"
-	    else
-		color=""
-	    fi
+            if [[ $i == $default_window ]]; then
+                color="${BOLD}${YELLOW}"
+            else
+                color=""
+            fi
             counter=$((counter+1))
             printf "${color}$counter. $i ${NC}\n"
         done
@@ -492,47 +492,47 @@ get_window_choice() {
             fi
         done
     elif [[ "$screen_selection" == "" ]]; then
-	 screen_selection=$default_window
+         screen_selection=$default_window
     fi
 
     # Full screen mode
     if [[ $screen_selection == "fullscreen" ]] || [[ $screen_selection == [F]* ]]; then
         # Fullscreen mode
         clear
-	# Stores available monitors into array
-	mapfile -t available_video_outputs < <(xrandr | egrep "current| connected" | sed -r -e 's|(\w+) connected ([0-9+x]+).*|\1 \2|' -e 's|.*current ([0-9]+) x ([0-9]+).*|ALL \1x\2+0+0|')
+        # Stores available monitors into array
+        mapfile -t available_video_outputs < <(xrandr | egrep "current| connected" | sed -r -e 's|(\w+) connected ([0-9+x]+).*|\1 \2|' -e 's|.*current ([0-9]+) x ([0-9]+).*|ALL \1x\2+0+0|')
         echo "Choose a monitor. [All monitors | Specific monitor ]"
-	counter=0
-	# Draw selection menu
-	for i in "${available_video_outputs[@]}"
-	do
-	    counter=$((counter+1))
-	    if [[ $i == ALL* ]]; then
-		color=$BOLD
-	    else
-		color=""
-	    fi
+        counter=0
+        # Draw selection menu
+        for i in "${available_video_outputs[@]}"
+        do
+            counter=$((counter+1))
+            if [[ $i == ALL* ]]; then
+                color=$BOLD
+            else
+                color=""
+            fi
 
-	    printf "${color}$counter. $i ${NC}\n"
-	done
+            printf "${color}$counter. $i ${NC}\n"
+        done
         read video_output_choice
 
-	# Change numeric selection to explicit value
-	if [[ "$video_output_choice" == [1-9] ]]; then
-	    counter=0
+        # Change numeric selection to explicit value
+        if [[ "$video_output_choice" == [1-9] ]]; then
+            counter=0
             for i in "${available_video_outputs[@]}"
             do
-		counter=$((counter+1))
-		if [[ $video_output_choice == $counter ]]; then
-		    video_output_choice=$i
-		fi
+                counter=$((counter+1))
+                if [[ $video_output_choice == $counter ]]; then
+                    video_output_choice=$i
+                fi
             done
 
-	fi
+        fi
 
-	# Default choice is all monitors
-	if [[ "$video_output_choice" == "" ]]; then
-	    video_output_choice="all"
+        # Default choice is all monitors
+        if [[ "$video_output_choice" == "" ]]; then
+            video_output_choice="all"
         fi
     fi
 
@@ -542,9 +542,9 @@ get_window_choice() {
 set_window_variables() {
     if [[ $screen_selection == "fullscreen" ]] || [[ $screen_selection == [F]* ]]; then
         WIN_GEO=$(printf '%s\n' "${available_video_outputs[@]}" | grep -i "^$video_output_choice" | awk '{ print $2 }' | awk -F\+ '{ print $1 }')
-	echo "WIN_GEO: $WIN_GEO"
+        echo "WIN_GEO: $WIN_GEO"
         WIN_POS=$(printf '%s\n' "${available_video_outputs[@]}" | grep -i "^$video_output_choice" | awk '{ print $2 }' | awk -F\+ '{ print $2 "," $3 }')
-	echo "WIN_POS: $WIN_POS"
+        echo "WIN_POS: $WIN_POS"
     elif [[ $screen_selection == [f]* ]]; then
         # Frame mode
         clear
@@ -554,7 +554,7 @@ set_window_variables() {
         # Put information into variables
         WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
         WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
-	    # Rectangle mode
+            # Rectangle mode
     elif [[ $screen_selection == [r]* ]]; then
         clear
         echo "Draw the rectange you want to record"
