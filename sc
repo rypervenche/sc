@@ -148,133 +148,133 @@ eval set -- "$script_options"
 
 while true; do
     case "$1" in
-    -d|--default)
-        audioQ=$default_audio
-        container=$default_container
-        file=$default_filename
-        echo "Filename: $default_filename" > $memo_file
-        encode=$default_encode
-        pass=$default_pass
-        screen_selection=$default_window
-        countdown=$default_countdown
-        raw=$default_raw
-        shift
-        ;;
-    -a|--audio) # Audio options
-        case "$2" in
-        *)
-            if [[ $2 == [nN]* ]]; then
-            audioQ=No
-            elif [[ $2 == [iIBbHh]* ]]; then
-                 audioQ=Yes
-                 audioA=$2
-            else
-                echo "-a: available options [i]nternal|[b]uilt-in|[h]eadset|[n]o"
-                exit 1
-            fi
-            echo OK
-            shift 2
-        esac
-        ;;
-    -c|--countdown)
-        countdown=false
-        shift
-        ;;
-    -f|--format) # Encoding type
-        case "$2" in
-        *)
-            if [[ $2 == [kKmMwWgG]* ]] || [[ $2 == "" ]]; then
-            container=$2
-            else
-            echo "Invalid container option -f <k|m|w|g>. Aborting..."
-            exit 1
-            fi
-            shift 2
-        esac
-        ;;
-    -h|--help) # Help
-        usage
-        ;;
-    --new-config) # New config
-        create_config
-        exit 0
-        ;;
-    -n|--now) # Encode now
-        encode=y
-        shift
-        ;;
-    -o|--output) # Filename
-        case "$2" in
-        *)
-            echo "Filename: $2" > $memo_file
-            file=$2
-            shift 2
-        esac;;
-    -p|--pass) # number of passes
-        case "$2" in
-        "")
-            pass=1
-            shift 2;;
-        1)
-            pass=1
-            shift 2;;
-        2)
-            pass=2
-            shift 2;;
-        *)
-            echo "Invalid pass option -p [1|2]. Aborting..."
-            shift 2;;
-        esac
-        ;;
-    -q|--quiet) # silence ffmpeg
-        quiet="-loglevel fatal"
-        shift
-        ;;
-    -r|--repeat)
-        echo "Repeat mode activated..."
-        file=$(grep Filename: $memo_file | cut -d: -f2-)
-        ext=$(grep Extension: $memo_file | cut -d' ' -f2-)
-        repeat=true
-        countdown=$(grep Countdown: $memo_file | cut -d' ' -f2-)
-        encode=$(grep Encode: $memo_file | cut -d' ' -f2-)
-        raw=$(grep Raw: $memo_file | cut -d' ' -f2-)
-        shift
-        ;;
-    --raw)
-        raw=true
-        shift
-        ;;
-    -w|--window) # Window capture
-        case "$2" in
-        *)
-            if [[ $2 == [fFr]* ]]; then
-            screen_selection=$2
-            if [[ $2 == [f]* ]]; then
-                echo "Window capture set to 'frame'..."
-            elif [[ $2 == [r]* ]]; then
-                echo "Window capture set to 'rectangle'..."
-            else
-                echo "Window capture set to 'fullscreen'..."
-            fi
-            else
-            echo "Invalid capture option -w. Aborting..."
-            exit 1
-            fi
-            shift 2;;
-        esac
-        ;;
-    --)
-        shift
-        break
-        ;;
+        -d|--default)
+            audioQ=$default_audio
+            container=$default_container
+            file=$default_filename
+            echo "Filename: $default_filename" > $memo_file
+            encode=$default_encode
+            pass=$default_pass
+            screen_selection=$default_window
+            countdown=$default_countdown
+            raw=$default_raw
+            shift
+            ;;
+        -a|--audio) # Audio options
+            case "$2" in
+                *)
+                    if [[ $2 == [nN]* ]]; then
+                        audioQ=No
+                    elif [[ $2 == [iIBbHh]* ]]; then
+                        audioQ=Yes
+                        audioA=$2
+                    else
+                        echo "-a: available options [i]nternal|[b]uilt-in|[h]eadset|[n]o"
+                        exit 1
+                    fi
+                    echo OK
+                    shift 2
+            esac
+            ;;
+        -c|--countdown)
+            countdown=false
+            shift
+            ;;
+        -f|--format) # Encoding type
+            case "$2" in
+                *)
+                    if [[ $2 == [kKmMwWgG]* ]] || [[ $2 == "" ]]; then
+                        container=$2
+                    else
+                        echo "Invalid container option -f <k|m|w|g>. Aborting..."
+                        exit 1
+                    fi
+                    shift 2
+            esac
+            ;;
+        -h|--help) # Help
+            usage
+            ;;
+        --new-config) # New config
+            create_config
+            exit 0
+            ;;
+        -n|--now) # Encode now
+            encode=y
+            shift
+            ;;
+        -o|--output) # Filename
+            case "$2" in
+                *)
+                    echo "Filename: $2" > $memo_file
+                    file=$2
+                    shift 2
+            esac;;
+        -p|--pass) # number of passes
+            case "$2" in
+                "")
+                    pass=1
+                    shift 2;;
+                1)
+                    pass=1
+                    shift 2;;
+                2)
+                    pass=2
+                    shift 2;;
+                *)
+                    echo "Invalid pass option -p [1|2]. Aborting..."
+                    shift 2;;
+            esac
+            ;;
+        -q|--quiet) # silence ffmpeg
+            quiet="-loglevel fatal"
+            shift
+            ;;
+        -r|--repeat)
+            echo "Repeat mode activated..."
+            file=$(grep Filename: $memo_file | cut -d: -f2-)
+            ext=$(grep Extension: $memo_file | cut -d' ' -f2-)
+            repeat=true
+            countdown=$(grep Countdown: $memo_file | cut -d' ' -f2-)
+            encode=$(grep Encode: $memo_file | cut -d' ' -f2-)
+            raw=$(grep Raw: $memo_file | cut -d' ' -f2-)
+            shift
+            ;;
+        --raw)
+            raw=true
+            shift
+            ;;
+        -w|--window) # Window capture
+            case "$2" in
+                *)
+                    if [[ $2 == [fFr]* ]]; then
+                        screen_selection=$2
+                        if [[ $2 == [f]* ]]; then
+                            echo "Window capture set to 'frame'..."
+                        elif [[ $2 == [r]* ]]; then
+                            echo "Window capture set to 'rectangle'..."
+                        else
+                            echo "Window capture set to 'fullscreen'..."
+                        fi
+                    else
+                        echo "Invalid capture option -w. Aborting..."
+                        exit 1
+                    fi
+                    shift 2;;
+            esac
+            ;;
+        --)
+            shift
+            break
+            ;;
 
-    :)
-        echo "Option -$OPTARG requires an argument." >&2
-        exit 1
-        ;;
-    \?)
-        usage
-        ;;
+        :)
+            echo "Option -$OPTARG requires an argument." >&2
+            exit 1
+            ;;
+        \?)
+            usage
+            ;;
     esac
 done
 
@@ -338,7 +338,7 @@ set_container_type() {
         do
             counter=$((counter+1))
             if [[ $container == $counter ]]; then
-            container=$i
+                container=$i
             fi
         done
     elif [[ "$container" == "k" ]]; then
@@ -393,17 +393,17 @@ set_audio_variables() {
             fi
             incoming="pulse"
             clear
-        if [ -z ${audioA+x} ]; then
-        echo "Where would you like the audio to come from?"
-        echo ""
-        echo "1) Internal audio"
-        echo "2) Built-in microphone"
-        echo "3) Headset microphone"
-        echo ""
-        echo "Enter single digit (Press space when finished) [1]"
-        read audioA
-        clear
-        fi
+            if [ -z ${audioA+x} ]; then
+                echo "Where would you like the audio to come from?"
+                echo ""
+                echo "1) Internal audio"
+                echo "2) Built-in microphone"
+                echo "3) Headset microphone"
+                echo ""
+                echo "Enter single digit (Press space when finished) [1]"
+                read audioA
+                clear
+            fi
             echo "Pavucontrol will now open."
             echo ""
             if [[ $audioA == 2 ]]; then
@@ -412,8 +412,8 @@ set_audio_variables() {
             elif [[ $audioA == 3 ]]; then
                 echo 'Go to the Recording tab and choose your headset'
                 AC="2"
-        else
-        echo 'Go to the Recording tab and choose "Monitor of Internal Audio".'
+            else
+                echo 'Go to the Recording tab and choose "Monitor of Internal Audio".'
                 AC="2"
             fi
             echo ""
@@ -439,16 +439,16 @@ set_audio_variables() {
             exit 1
         fi
 
-    # For webm
-    if [[ "$container" == "webm" ]]; then
+        # For webm
+        if [[ "$container" == "webm" ]]; then
             audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-    # For mp4
-    elif [[ "$container" == "mp4" ]]; then
+            # For mp4
+        elif [[ "$container" == "mp4" ]]; then
             audio_options="-c:a libfaac -b:a $audio_bitrate -ac $AC"
-    # For mkv
-    elif [[ "$container" == "mkv" ]]; then
+            # For mkv
+        elif [[ "$container" == "mkv" ]]; then
             audio_options="-c:a libvorbis -b:a $audio_bitrate -ac $AC"
-    fi
+        fi
     else
         audio_options="-an"
     fi
@@ -481,18 +481,18 @@ get_window_choice() {
         read screen_selection
     fi
 
-        # If choice is a number, change it to real name
+    # If choice is a number, change it to real name
     if [[ "$screen_selection" == [1-9] ]]; then
         counter=0
         for i in "${possible_screens[@]}"
         do
             counter=$((counter+1))
             if [[ $screen_selection == $counter ]]; then
-            screen_selection=$i
+                screen_selection=$i
             fi
         done
     elif [[ "$screen_selection" == "" ]]; then
-         screen_selection=$default_window
+        screen_selection=$default_window
     fi
 
     # Full screen mode
@@ -554,7 +554,7 @@ set_window_variables() {
         # Put information into variables
         WIN_GEO=$(echo "$INFO" | grep -e "Height:" -e "Width:" | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "x" $2}')
         WIN_POS=$(echo "$INFO" | grep "upper-left" | head -n 2 | cut -d\: -f2 | tr "\n" " " | awk '{print $1 "," $2}')
-            # Rectangle mode
+        # Rectangle mode
     elif [[ $screen_selection == [r]* ]]; then
         clear
         echo "Draw the rectange you want to record"
@@ -585,10 +585,10 @@ set_extension_variable() {
     fi
     # If filename not already set, ask it
     if [ -z ${file+x} ]; then
-       clear
-       echo "Name file: (without extension)"
-       read file
-       echo "Filename: $file" > $memo_file
+        clear
+        echo "Name file: (without extension)"
+        read file
+        echo "Filename: $file" > $memo_file
 
     fi
 }
@@ -629,10 +629,10 @@ record_lossless() {
     # If 'repeat' mode is on, get command from memo file
     if [[ "$repeat" == true ]]; then
         record_lossless_command=$(grep Lossless: $memo_file | cut -d: -f2-)
-    # With audio
+        # With audio
     elif [[ $audioQ == [yY]* ]]; then
         record_lossless_command="ffmpeg $quiet -thread_queue_size 512 -f alsa -ac $AC -ar $audio_freq -i $incoming -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:a pcm_s16le -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
-    # Without audio
+        # Without audio
     else
         record_lossless_command="ffmpeg $quiet -f x11grab -framerate $frame_rate -s $WIN_GEO -i ${DISPLAY}.0+$WIN_POS -c:v libx264 -qp 0 -preset $preset_lossless -threads 0 lossless.mkv"
     fi
@@ -696,13 +696,13 @@ set_encoding_variables() {
         ext="webm"
         video_options="-c:v libvpx -threads 7 -b:v $webm_video_bitrate"
         crf_options="-crf $webm_crf"
-    # For mp4
+        # For mp4
     elif [[ "$container" == mp4 ]]; then
         ext="mp4"
         video_options="-c:v libx264 -preset $preset -threads 0"
         crf_options="-crf $crf"
     elif [[ "$container" == mkv ]]; then
-    # For mkv
+        # For mkv
         ext="mkv"
         video_options="-c:v libx264 -preset $preset -threads 0"
         crf_options="-crf $crf"
@@ -718,7 +718,7 @@ encode_video() {
     # If repeat option active, get the stored command and run it
     if [[ $repeat == true ]]; then
         encode_command=$(grep Encoding: $memo_file | cut -d: -f2-)
-#       echo $encode_command
+        #       echo $encode_command
         eval "$encode_command"
         return
     fi
@@ -727,7 +727,7 @@ encode_video() {
     # If creating gif
     if [[ "$container" == "gif" ]]; then
         encode_command="ffmpeg $quiet -v warning -i lossless.mkv -vf \"$video_options,palettegen\" -y $gif_palette && ffmpeg $quiet -v warning -i lossless.mkv -i $gif_palette -lavfi \"$video_options [x]; [x][1:v] paletteuse\" -y $file.$ext"
-    # If creating 2 passes video
+        # If creating 2 passes video
     elif [[ $pass == 2 ]]; then
         video_options="$video_options -b:v $video_bitrate"
         if [[ $audioQ == [yY]* ]]; then
