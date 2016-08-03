@@ -321,7 +321,7 @@ set_container_type() {
         for i in "${possible_containers[@]}"
         do
 	    if [[ $i == $default_container ]]; then
-		color=$BOLD
+		color="${BOLD}${YELLOW}"
 	    else
 		color=""
 	    fi
@@ -471,7 +471,7 @@ get_window_choice() {
         for i in "${possible_screens[@]}"
         do
 	    if [[ $i == $default_window ]]; then
-		color=$BOLD
+		color="${BOLD}${YELLOW}"
 	    else
 		color=""
 	    fi
