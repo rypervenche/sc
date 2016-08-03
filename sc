@@ -741,6 +741,7 @@ cleanup() {
     # Remove unnecessary files and folders and exit
     mv $file.$ext $output_destination/
     if [ -z ${raw+x} ]; then
+        echo
         echo "Would you like to keep the raw video? y/N"
         read raw
         echo "Raw: $raw" >> $memo_file
