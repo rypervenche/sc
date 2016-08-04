@@ -501,7 +501,7 @@ get_window_choice() {
         clear
         # Stores available monitors into array
         mapfile -t available_video_outputs < <(xrandr | egrep "current| connected" | sed -r -e 's|(\w+) connected ([0-9+x]+).*|\1 \2|' -e 's|.*current ([0-9]+) x ([0-9]+).*|ALL \1x\2+0+0|')
-        echo "Choose a monitor. [All monitors | Specific monitor ]"
+        echo "Choose a monitor. [ALL]"
         counter=0
         # Draw selection menu
         for i in "${available_video_outputs[@]}"
