@@ -508,7 +508,7 @@ get_window_choice() {
         do
             counter=$((counter+1))
             if [[ $i == ALL* ]]; then
-                color=$BOLD
+                color=${BOLD}${YELLOW}
             else
                 color=""
             fi
