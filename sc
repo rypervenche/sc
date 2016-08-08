@@ -43,7 +43,7 @@ set_default_variables(){
     default_pass=1
     default_window=frame
     default_raw=n
-    default_countdown=n
+    default_countdown=false
 }
 set_default_variables
 
