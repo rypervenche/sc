@@ -174,6 +174,7 @@ while true; do
                     fi
                     echo OK
                     shift 2
+                    ;;
             esac
             ;;
         -c|--countdown)
@@ -190,6 +191,7 @@ while true; do
                         exit 1
                     fi
                     shift 2
+                    ;;
             esac
             ;;
         -h|--help) # Help
@@ -209,21 +211,27 @@ while true; do
                     echo "Filename: $2" > $memo_file
                     file=$2
                     shift 2
-            esac;;
+                    ;;
+            esac
+            ;;
         -p|--pass) # number of passes
             case "$2" in
                 "")
                     pass=1
-                    shift 2;;
+                    shift 2
+                    ;;
                 1)
                     pass=1
-                    shift 2;;
+                    shift 2
+                    ;;
                 2)
                     pass=2
-                    shift 2;;
+                    shift 2
+                    ;;
                 *)
                     echo "Invalid pass option -p [1|2]. Aborting..."
-                    shift 2;;
+                    shift 2
+                    ;;
             esac
             ;;
         -q|--quiet) # silence ffmpeg
@@ -260,7 +268,8 @@ while true; do
                         echo "Invalid capture option -w. Aborting..."
                         exit 1
                     fi
-                    shift 2;;
+                    shift 2
+                    ;;
             esac
             ;;
         --)
