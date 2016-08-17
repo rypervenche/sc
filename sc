@@ -116,7 +116,7 @@ usage(){
     ## Print usage of the script and exit
     cat <<EOF
 
-Usage: screencast [-a <I|B|H|N>] [-c] [-f <k|m|w|g>] [--new-config] [-n] [--output=<filename>] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
+Usage: screencast [-a [<i|b|h|n>]] [-c] [-f <k|m|w|g>] [--new-config] [-n] [--output=<filename>] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
 
   -a --audio: Set audio input - [i]nternal, [b]uilt-in, [h]eadset, [n]o audio
   -c --countdown: Remove countdown
@@ -136,7 +136,7 @@ EOF
     exit 0
 }
 
-script_options=$(getopt -o a:cdf:hno:p::qrw: --long audio:,countdown,default,format:,help,new-config,now,output:,pass::,quiet,raw,repeat,window: -- "$@")
+script_options=$(getopt -o a::cdf:hno:p::qrw: --long audio::,countdown,default,format:,help,new-config,now,output:,pass::,quiet,raw,repeat,window: -- "$@")
 
 # If foreign option entered, exit
 [ $? -eq 0 ] || {
@@ -164,10 +164,12 @@ while true; do
             case "$2" in
                 *)
                     if [[ $2 == [nN]* ]]; then
-                        audioQ=No
+                        audioQ="No"
                     elif [[ $2 == [iIBbHh]* ]]; then
-                        audioQ=Yes
+                        audioQ="Yes"
                         audioA=$2
+                    elif [[ $2 == '' ]]; then
+                        audioQ="Yes"
                     else
                         echo "-a: available options [i]nternal|[b]uilt-in|[h]eadset|[n]o"
                         exit 1
