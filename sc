@@ -44,6 +44,8 @@ set_default_variables(){
     default_window=frame
     default_raw=n
     default_countdown=false
+    default_incoming="hw:0"
+    default_AC=2
 }
 set_default_variables
 
@@ -100,6 +102,12 @@ default_raw=$default_raw
 
 # Set default countdown setting [true|false]
 default_countdown=$default_countdown
+
+# Set default audio device
+default_incoming="$default_incoming"
+
+# Set default audio channels
+default_AC=$default_AC
 EOF
 
     echo "$HOME/.sc_config created"
@@ -149,6 +157,11 @@ eval set -- "$script_options"
 while true; do
     case "$1" in
         -d|--default)
+            default="true"
+            AC=$default_AC
+            if [[ $pulseaudio == "false" ]]; then
+                imcoming="$default_incoming"
+            fi
             audioQ=$default_audio
             container=$default_container
             file=$default_filename
@@ -158,6 +171,7 @@ while true; do
             screen_selection=$default_window
             countdown=$default_countdown
             raw=$default_raw
+            incoming="$default_incoming"
             shift
             ;;
         -a|--audio) # Audio options
@@ -387,6 +401,11 @@ set_audio_variables() {
         return
     fi
 
+    # If defaults are set
+    if [[ "$default" == "true" ]]; then
+        return
+    fi
+
     # If audio not already set, ask it
     if [ -z ${audioQ+x} ]; then
         echo "Would you like audio? y/N [N]"
@@ -444,8 +463,9 @@ set_audio_variables() {
             read audiodevice
             incoming="hw:${audiodevice:=0}"
             clear
-            echo "Choose number of audio channels (usually mono for microphones)"
+            echo "Choose number of audio channels (usually mono for microphones): [2]"
             read AC
+            AC=${AC:=2}
         else
             exit 1
         fi
