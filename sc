@@ -118,7 +118,7 @@ usage(){
 
 Usage: screencast [-a <I|B|H|N>] [-c] [-f <k|m|w|g>] [--new-config] [-n] [--output=<filename>] [-p <1|2>] [-q] [--raw] [-r] [-w <F|R>]
 
-  -a --audio: Set audio input - [I]nternal, [B]uilt-in, [H]eadset, [N]o audio
+  -a --audio: Set audio input - [i]nternal, [b]uilt-in, [h]eadset, [n]o audio
   -c --countdown: Remove countdown
   -d --default: Use default options ($default_container, audio=$default_audio, $default_window, filename=$default_filename)
   -f --format: Set container format - m[k]v, [m]p4, [w]ebm, [g]if
@@ -429,9 +429,9 @@ set_audio_variables() {
             clear
             cat /proc/asound/cards
             echo ""
-            echo "Choose audio device to record from (ex. for hw:1,0 enter \"1\")"
+            echo "Choose audio device number to record from: [0]"
             read audiodevice
-            incoming="hw:$audiodevice"
+            incoming="hw:${audiodevice:=0}"
             clear
             echo "Choose number of audio channels (usually mono for microphones)"
             read AC
