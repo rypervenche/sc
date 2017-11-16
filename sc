@@ -317,7 +317,6 @@ check_for_dependencies() {
     do
         type -P "$i" &> /dev/null
         if [[ $? != 0 ]]; then
-            #echo "You need to install ${dependencies[i]}. Closing program now..."
             echo "You need to install $i. Closing program now..."
             exit 1
         fi
