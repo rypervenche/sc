@@ -315,14 +315,11 @@ check_for_dependencies() {
 
     for i in "${dependencies[@]}"
     do
-        echo "$i"
         type -P "$i" &> /dev/null
         if [[ $? != 0 ]]; then
             #echo "You need to install ${dependencies[i]}. Closing program now..."
             echo "You need to install $i. Closing program now..."
             exit 1
-        else
-            echo "$i ok"
         fi
     done
     clear
