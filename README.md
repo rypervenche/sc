@@ -1,3 +1,5 @@
+# MIGRATED TO GITLAB.COM
+
 # sc
 A screencasting script
 
